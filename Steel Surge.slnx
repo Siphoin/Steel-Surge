@@ -1,2 +1,13 @@
 ﻿<Solution>
+  <Project Path="AITree.Nodes.csproj" />
+  <Project Path="ApexEditor.csproj" />
+  <Project Path="Apex.csproj" />
+  <Project Path="AITree.PerceptionSystem.csproj" />
+  <Project Path="AITreeEditor.csproj" />
+  <Project Path="ExLib.csproj" />
+  <Project Path="AITree.csproj" />
+  <Project Path="AITree.EQS.csproj" />
+  <Project Path="Apex.Serialization.csproj" />
+  <Project Path="ExLibEditor.csproj" />
+  <Project Path="Apex.Demo.csproj" />
 </Solution>
