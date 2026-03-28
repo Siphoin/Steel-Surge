@@ -13,7 +13,6 @@
   <Project Path="Boxophobic.Utils.Scripts.csproj" />
   <Project Path="AITreeEditor.csproj" />
   <Project Path="ExLib.csproj" />
-  <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="IngameDebugConsole.Runtime.csproj" />
   <Project Path="AITree.csproj" />
   <Project Path="MessagePack.csproj" />
@@ -27,6 +26,7 @@
   <Project Path="UniTask.TextMeshPro.csproj" />
   <Project Path="ExLibEditor.csproj" />
   <Project Path="InputSystem.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="UniTask.Editor.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.UnityMathematics.csproj" />
   <Project Path="Apex.Demo.csproj" />
