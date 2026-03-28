@@ -148,7 +148,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2901b0acc15e6de49a32ae6e25a46d5c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Network::SteelSurge.Network.Test.NetworkRoomTester
-  _testSceneName: SampleScene
+  _testSceneName: ArenaForest
 --- !u!1 &3697174687833511848
 GameObject:
   m_ObjectHideFlags: 0
