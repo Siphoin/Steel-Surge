@@ -1139,18 +1139,18 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4226814691775068447}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2611426226313496098}
   - {fileID: 3207669561452434465}
-  m_Father: {fileID: 5933985664925308426}
+  m_Father: {fileID: 414456123659624386}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: -20, y: -20}
+  m_AnchoredPosition: {x: 781.50006, y: -8.599999}
   m_SizeDelta: {x: 80, y: 30}
   m_Pivot: {x: 0, y: 0}
 --- !u!222 &2257279038358510311
@@ -1713,6 +1713,7 @@ RectTransform:
   - {fileID: 4721773949481268593}
   - {fileID: 5933985664925308426}
   - {fileID: 5744334545030599259}
+  - {fileID: 672206447656349418}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2407,7 +2408,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -3022,7 +3023,6 @@ RectTransform:
   - {fileID: 3994642966420946380}
   - {fileID: 8228481678036834313}
   - {fileID: 3196069405029143941}
-  - {fileID: 672206447656349418}
   m_Father: {fileID: 414456123659624386}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
