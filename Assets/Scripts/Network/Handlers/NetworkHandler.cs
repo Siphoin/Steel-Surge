@@ -136,6 +136,11 @@ namespace SteelSurge.Network.Handlers
                 string playerName = System.Text.Encoding.UTF8.GetString(request.Payload);
                 _signalBus.Fire(new ConnectionApprovedSignal(request.ClientNetworkId, playerName));
             }
+            else if (NetworkManager.Singleton.IsHost && request.ClientNetworkId == NetworkManager.Singleton.LocalClientId)
+            {
+                // Для хоста без payload
+                _signalBus.Fire(new ConnectionApprovedSignal(request.ClientNetworkId, "Host"));
+            }
 
             response.Approved = true;
             response.CreatePlayerObject = true;

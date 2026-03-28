@@ -27,6 +27,8 @@ namespace SteelSurge.Network.Handlers
         {
             if (IsServer)
             {
+                Debug.Log("[NetworkPlayerHandler] Spawned (Server)");
+                
                 _signalBus.GetStream<ConnectionApprovedSignal>()
                     .Subscribe(sig => _pendingNames[sig.ClientId] = sig.PlayerName)
                     .AddTo(this);
@@ -41,13 +43,24 @@ namespace SteelSurge.Network.Handlers
 
                 NetworkManager.Singleton.OnClientConnectedCallback += OnServerClientConnected;
                 NetworkManager.Singleton.OnClientDisconnectCallback += OnServerClientDisconnected;
+
+                if (NetworkManager.Singleton.IsHost)
+                {
+                    Debug.Log("[NetworkPlayerHandler] Host detected, adding local player");
+                    OnServerClientConnected(NetworkManager.Singleton.LocalClientId);
+                }
+            }
+            else
+            {
+                Debug.Log("[NetworkPlayerHandler] Spawned (Client)");
             }
         }
 
         public override void OnNetworkDespawn()
         {
-            if (IsServer && NetworkManager.Singleton != null)
+            if (IsServer)
             {
+                Debug.Log($"[NetworkPlayerHandler] Despawning (Server). Players count: {ConnectedPlayers.Count}");
                 NetworkManager.Singleton.OnClientConnectedCallback -= OnServerClientConnected;
                 NetworkManager.Singleton.OnClientDisconnectCallback -= OnServerClientDisconnected;
             }
@@ -57,27 +70,34 @@ namespace SteelSurge.Network.Handlers
         {
             _pendingNames.TryGetValue(clientId, out string playerName);
 
-            ConnectedPlayers.Add(new NetworkPlayer
+            var newPlayer = new NetworkPlayer
             {
                 Name = playerName ?? $"Player {clientId}",
                 ClientId = clientId,
                 InstanceId = Guid.NewGuid()
-            });
+            };
 
+            ConnectedPlayers.Add(newPlayer);
             _pendingNames.Remove(clientId);
+
+            Debug.Log($"[NetworkPlayerHandler] Player connected: {newPlayer.Name} (ID: {clientId}, Total: {ConnectedPlayers.Count})");
         }
 
         private void OnServerClientDisconnected(ulong clientId)
         {
+            string removedName = "Unknown";
             for (int i = 0; i < ConnectedPlayers.Count; i++)
             {
                 if (ConnectedPlayers[i].ClientId == clientId)
                 {
+                    removedName = ConnectedPlayers[i].Name.ToString();
                     ConnectedPlayers.RemoveAt(i);
                     break;
                 }
             }
             _pendingNames.Remove(clientId);
+
+            Debug.Log($"[NetworkPlayerHandler] Player disconnected: {removedName} (ID: {clientId}, Total: {ConnectedPlayers.Count})");
         }
 
         [Rpc(SendTo.Server)]
