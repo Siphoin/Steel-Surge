@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f7a65a64ca895842abc0e2c774d054e, type: 3}
   m_Name: UnitAITree
   m_EditorClassIdentifier: AITree::RenownedGames.AITree.BehaviourTree
-  blackboard: {fileID: 0}
+  blackboard: {fileID: 11400000, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
   updateMode: 0
   tickRate: 30
   rootNode: {fileID: 9012230791651253294}
