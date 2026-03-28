@@ -2,12 +2,22 @@
   <Project Path="AITree.Nodes.csproj" />
   <Project Path="ApexEditor.csproj" />
   <Project Path="Apex.csproj" />
+  <Project Path="Zenject.csproj" />
+  <Project Path="UniRx.csproj" />
+  <Project Path="UniTask.csproj" />
   <Project Path="AITree.PerceptionSystem.csproj" />
+  <Project Path="UniTask.Linq.csproj" />
+  <Project Path="Zenject-Editor.csproj" />
   <Project Path="AITreeEditor.csproj" />
   <Project Path="ExLib.csproj" />
   <Project Path="AITree.csproj" />
+  <Project Path="UniTask.Addressables.csproj" />
   <Project Path="AITree.EQS.csproj" />
+  <Project Path="DOTween.Modules.csproj" />
   <Project Path="Apex.Serialization.csproj" />
+  <Project Path="UniTask.TextMeshPro.csproj" />
   <Project Path="ExLibEditor.csproj" />
+  <Project Path="UniTask.Editor.csproj" />
   <Project Path="Apex.Demo.csproj" />
+  <Project Path="UniTask.DOTween.csproj" />
 </Solution>
