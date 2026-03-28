@@ -14,6 +14,7 @@
   <Project Path="IngameDebugConsole.Runtime.csproj" />
   <Project Path="AITree.csproj" />
   <Project Path="MessagePack.csproj" />
+  <Project Path="Network.csproj" />
   <Project Path="UniTask.Addressables.csproj" />
   <Project Path="AITree.EQS.csproj" />
   <Project Path="UI.csproj" />
