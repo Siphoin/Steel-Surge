@@ -1,0 +1,55 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 652c5057fc0a96947b56e89add0c2156, type: 3}
+  m_Name: MapGenerationConfig
+  m_EditorClassIdentifier: LevelEditor::SteelSurge.LevelEditor.Configs.MapGenerationConfig
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  _guidObject: d0fbddfc-f872-440f-bd20-26a512338dde
+  _width: 20
+  _height: 30
+  _hexSize: 1
+  _hexGrassPrefab: {fileID: 8969223747727502975, guid: 4ec2f596e31d72342bf46074d630fed6, type: 3}
+  _keepPrefab: {fileID: 1320367859915830205, guid: 0c30eb8488537d341b7c8c04fbb028fd, type: 3}
+  _mountainPrefabs:
+  - {fileID: 1784092176601380465, guid: bd59a9824cfbfd440bf5f956e2ce48e7, type: 3}
+  - {fileID: 807402401993773452, guid: a48d173d7ac70f94a8695b8f505a5d15, type: 3}
+  - {fileID: 2070315157839524442, guid: 66a39d939cbb3f94fb0ef078c5c0e819, type: 3}
+  - {fileID: 5640178849817343171, guid: 9ae70f8e181a6284d9a81c5d8b51459c, type: 3}
+  - {fileID: 8150054813588074298, guid: e9750ba1e926c9947acaf79e68ca3b47, type: 3}
+  - {fileID: 8158140537335454331, guid: 1193c3b33040ecc4f98360e80938e4f5, type: 3}
+  _treePrefabs:
+  - {fileID: 1711244032317245508, guid: aff298edcd62a334485bf0ab01609ccc, type: 3}
+  _rockPrefabs:
+  - {fileID: 1511807824781405865, guid: 87cb3a9cacb144c4b8f2b251fdc84958, type: 3}
+  - {fileID: 7972637881617844772, guid: 78d2df272b4294a4aa1f2d1ce5debfb1, type: 3}
+  - {fileID: 4371698943040364297, guid: 6b3fd99210c46dd439a5f15b9c0089fe, type: 3}
+  - {fileID: 8521807422104082101, guid: 0de592fb7f7353146ad36e730e07724c, type: 3}
+  - {fileID: 2544573756954154855, guid: dd51a8efdbc0d0b439c4155636074d43, type: 3}
+  _baseMaterial: {fileID: 2100000, guid: d411521bf7d3a684594613c2ed6bee79, type: 2}
+  _noiseScale: 0.1
+  _biomeLayers:
+  - Material: {fileID: 2100000, guid: 6f225a644b6aa3f438c2b054b68da766, type: 2}
+    Threshold: 0.5
+  - Material: {fileID: 2100000, guid: 28ed110deefdc1f4995730543a445ad1, type: 2}
+    Threshold: 0.645
+  _rockDensity: 0.05
+  _treeDensity: 0.1
+  _safeZoneRadius: 3
+  _symmetryType: 1
