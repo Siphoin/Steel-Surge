@@ -59,6 +59,13 @@ namespace SteelSurge.LevelEditor.Configs
         [FoldoutGroup("Obstacles Settings")]
         [SerializeField, Min(1)] private int _safeZoneRadius = 3;
 
+        [FoldoutGroup("Border Settings")]
+        [SerializeField, Range(1, 5)] private int _maxBorderDepth = 3;
+        [FoldoutGroup("Border Settings")]
+        [SerializeField, Range(0.01f, 1f)] private float _borderNoiseScale = 0.2f;
+        [FoldoutGroup("Border Settings")]
+        [SerializeField, Range(0f, 1f)] private float _borderNoiseThreshold = 0.4f;
+
         [FoldoutGroup("Symmetry")]
         [SerializeField] private SymmetryType _symmetryType = SymmetryType.Point;
 
@@ -86,6 +93,10 @@ namespace SteelSurge.LevelEditor.Configs
         public int TreesPerHex => _treesPerHex;
         public float TreeSpreadRadius => _treeSpreadRadius;
         public int SafeZoneRadius => _safeZoneRadius;
+
+        public int MaxBorderDepth => _maxBorderDepth;
+        public float BorderNoiseScale => _borderNoiseScale;
+        public float BorderNoiseThreshold => _borderNoiseThreshold;
 
         public SymmetryType Symmetry => _symmetryType;
     }

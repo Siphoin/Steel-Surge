@@ -5,6 +5,7 @@
   <Project Path="Zenject.csproj" />
   <Project Path="UniRx.csproj" />
   <Project Path="Boxophobic.Utils.Editor.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="UniTask.csproj" />
   <Project Path="AITree.PerceptionSystem.csproj" />
   <Project Path="Yaml.csproj" />
@@ -26,7 +27,6 @@
   <Project Path="Main.csproj" />
   <Project Path="UniTask.TextMeshPro.csproj" />
   <Project Path="ExLibEditor.csproj" />
-  <Project Path="Assembly-CSharp-Editor.csproj" />
   <Project Path="InputSystem.csproj" />
   <Project Path="LevelEditor.Editor.csproj" />
   <Project Path="UniTask.Editor.csproj" />

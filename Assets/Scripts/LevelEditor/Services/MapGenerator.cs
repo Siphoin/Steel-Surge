@@ -146,14 +146,40 @@ namespace SteelSurge.LevelEditor.Services
         {
             if (_config.MountainPrefabs == null || _config.MountainPrefabs.Count == 0) return;
 
-            for (int r = 0; r < _height; r++)
+            float borderOffsetX = Random.Range(-10000f, 10000f);
+            float borderOffsetY = Random.Range(-10000f, 10000f);
+            int halfHeight = _config.Symmetry == SymmetryType.None ? _height : _height / 2;
+
+            for (int r = 0; r < halfHeight; r++)
             {
                 for (int q = 0; q < _width; q++)
                 {
-                    if (q == 0 || q == _width - 1 || r == 0 || r == _height - 1)
+                    int distX = Mathf.Min(q, _width - 1 - q);
+                    int distY = Mathf.Min(r, _height - 1 - r);
+                    int distToEdge = Mathf.Min(distX, distY);
+
+                    bool isMountain = false;
+
+                    if (distToEdge == 0)
+                    {
+                        isMountain = true;
+                    }
+                    else if (distToEdge <= _config.MaxBorderDepth)
+                    {
+                        float noise = Mathf.PerlinNoise((q + borderOffsetX) * _config.BorderNoiseScale, (r + borderOffsetY) * _config.BorderNoiseScale);
+                        // The further from the edge, the harder it is to be a mountain
+                        float adjustedThreshold = _config.BorderNoiseThreshold + (distToEdge * 0.15f);
+                        if (noise > adjustedThreshold)
+                        {
+                            isMountain = true;
+                        }
+                    }
+
+                    if (isMountain)
                     {
                         GameObject randomMountain = _config.MountainPrefabs[Random.Range(0, _config.MountainPrefabs.Count)];
                         SpawnObstacle(q, r, randomMountain, false);
+                        ApplySymmetry(q, r, randomMountain, (sq, sr, prefab) => SpawnObstacle(sq, sr, prefab, false));
                     }
                 }
             }

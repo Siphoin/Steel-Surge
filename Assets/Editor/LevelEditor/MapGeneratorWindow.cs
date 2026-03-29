@@ -137,18 +137,6 @@ namespace SteelSurge.LevelEditor.Editor
                 DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, keep2Q, keep2R, poiColor);
             }
 
-            // Borders
-            for (int r = 0; r < actualHeight; r++)
-            {
-                for (int q = 0; q < actualWidth; q++)
-                {
-                    if (q == 0 || q == actualWidth - 1 || r == 0 || r == actualHeight - 1)
-                    {
-                        DrawHex(pixels, texWidth, q, r, mountainColor);
-                    }
-                }
-            }
-
             // Obstacles
             int numClusters = Mathf.RoundToInt((actualWidth * actualHeight) * _config.TreeDensity * 0.05f);
             System.Collections.Generic.List<Vector2Int> treeClusters = new System.Collections.Generic.List<Vector2Int>();
@@ -210,6 +198,41 @@ namespace SteelSurge.LevelEditor.Editor
                     {
                         DrawHex(pixels, texWidth, q, r, rockColor);
                         ApplySymmetryPreview(pixels, texWidth, actualWidth, actualHeight, q, r, rockColor, DrawHex);
+                    }
+                }
+            }
+
+            // Borders (drawn last to overwrite trees/rocks that might have spawned near the edge)
+            float borderOffsetX = Random.Range(-10000f, 10000f);
+            float borderOffsetY = Random.Range(-10000f, 10000f);
+            for (int r = 0; r < halfHeight; r++)
+            {
+                for (int q = 0; q < actualWidth; q++)
+                {
+                    int distX = Mathf.Min(q, actualWidth - 1 - q);
+                    int distY = Mathf.Min(r, actualHeight - 1 - r);
+                    int distToEdge = Mathf.Min(distX, distY);
+
+                    bool isMountain = false;
+
+                    if (distToEdge == 0)
+                    {
+                        isMountain = true;
+                    }
+                    else if (distToEdge <= _config.MaxBorderDepth)
+                    {
+                        float noise = Mathf.PerlinNoise((q + borderOffsetX) * _config.BorderNoiseScale, (r + borderOffsetY) * _config.BorderNoiseScale);
+                        float adjustedThreshold = _config.BorderNoiseThreshold + (distToEdge * 0.15f);
+                        if (noise > adjustedThreshold)
+                        {
+                            isMountain = true;
+                        }
+                    }
+
+                    if (isMountain)
+                    {
+                        DrawHex(pixels, texWidth, q, r, mountainColor);
+                        ApplySymmetryPreview(pixels, texWidth, actualWidth, actualHeight, q, r, mountainColor, DrawHex);
                     }
                 }
             }
