@@ -36,9 +36,17 @@ namespace SteelSurge.LevelEditor.Configs
         [FoldoutGroup("Biomes")]
         [SerializeField, Range(0.01f, 1f)] private float _noiseScale = 0.1f;
         [FoldoutGroup("Biomes")]
+        [SerializeField, Range(1, 5)] private int _noiseOctaves = 3;
+        [FoldoutGroup("Biomes")]
+        [SerializeField, Range(0f, 1f)] private float _noisePersistence = 0.5f;
+        [FoldoutGroup("Biomes")]
+        [SerializeField, Range(1f, 3f)] private float _noiseLacunarity = 2f;
+        [FoldoutGroup("Biomes")]
         [SerializeField, ListDrawerSettings(ShowIndexLabels = true)] 
         private List<BiomeLayer> _biomeLayers = new List<BiomeLayer>();
 
+        [FoldoutGroup("Points of Interest")]
+        [SerializeField] private PoiSpawnMode _poiSpawnMode = PoiSpawnMode.CenterEdges;
         [FoldoutGroup("Points of Interest")]
         [SerializeField] private Material _poiSpotMaterial;
         [FoldoutGroup("Points of Interest")]
@@ -70,6 +78,8 @@ namespace SteelSurge.LevelEditor.Configs
 
         [FoldoutGroup("Symmetry")]
         [SerializeField] private SymmetryType _symmetryType = SymmetryType.Point;
+        [FoldoutGroup("Symmetry")]
+        [SerializeField, Range(0f, 1f)] private float _symmetryChaos = 0.05f;
 
         public MapArchetype Archetype => _archetype;
         public float HexSize => _hexSize;
@@ -83,8 +93,12 @@ namespace SteelSurge.LevelEditor.Configs
 
         public Material BaseMaterial => _baseMaterial;
         public float NoiseScale => _noiseScale;
+        public int NoiseOctaves => _noiseOctaves;
+        public float NoisePersistence => _noisePersistence;
+        public float NoiseLacunarity => _noiseLacunarity;
         public IReadOnlyList<BiomeLayer> BiomeLayers => _biomeLayers;
 
+        public PoiSpawnMode PoiSpawnMode => _poiSpawnMode;
         public Material PoiSpotMaterial => _poiSpotMaterial;
         public int PoiSpotRadius => _poiSpotRadius;
 
@@ -102,6 +116,7 @@ namespace SteelSurge.LevelEditor.Configs
         public float BorderNoiseThreshold => _borderNoiseThreshold;
 
         public SymmetryType Symmetry => _symmetryType;
+        public float SymmetryChaos => _symmetryChaos;
     }
 
     [Serializable]
@@ -125,5 +140,12 @@ namespace SteelSurge.LevelEditor.Configs
         Standard,
         ChokePoint,
         Divided
+    }
+
+    public enum PoiSpawnMode
+    {
+        CenterEdges,
+        RandomEdges,
+        Diagonal
     }
 }

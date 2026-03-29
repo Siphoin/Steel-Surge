@@ -95,7 +95,7 @@ namespace SteelSurge.LevelEditor.Editor
             {
                 for (int q = 0; q < actualWidth; q++)
                 {
-                    float noiseValue = Mathf.PerlinNoise((q + offsetX) * _config.NoiseScale, (r + offsetY) * _config.NoiseScale);
+                    float noiseValue = GetFractalNoisePreview((q + offsetX) * _config.NoiseScale, (r + offsetY) * _config.NoiseScale);
                     Color hexColor = baseColor;
 
                     if (_config.BiomeLayers != null)
@@ -120,22 +120,48 @@ namespace SteelSurge.LevelEditor.Editor
             }
 
             // POI Spots
-            int keep1Q = _orientation == MapOrientation.Horizontal ? 2 : actualWidth / 2;
-            int keep1R = _orientation == MapOrientation.Horizontal ? actualHeight / 2 : 2;
-            
-            DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, keep1Q, keep1R, poiColor);
-            
+            bool isVertical = actualWidth < actualHeight;
+            int keep1Q = isVertical ? actualWidth / 2 : 2;
+            int keep1R = isVertical ? 2 : actualHeight / 2;
+
+            if (_config.PoiSpawnMode == PoiSpawnMode.RandomEdges)
+            {
+                if (isVertical) keep1Q = Random.Range(2, actualWidth - 2);
+                else keep1R = Random.Range(2, actualHeight - 2);
+            }
+            else if (_config.PoiSpawnMode == PoiSpawnMode.Diagonal)
+            {
+                if (isVertical) keep1Q = Random.value > 0.5f ? 2 : actualWidth - 3;
+                else keep1R = Random.value > 0.5f ? 2 : actualHeight - 3;
+            }
+
+            Vector2Int poi1 = new Vector2Int(keep1Q, keep1R);
+            Vector2Int poi2;
+
             if (_config.Symmetry != SymmetryType.None)
             {
-                Vector2Int keep2Coords = GetSymmetricCoordinate(keep1Q, keep1R, actualWidth, actualHeight);
-                DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, keep2Coords.x, keep2Coords.y, poiColor);
+                poi2 = GetSymmetricCoordinate(poi1.x, poi1.y, actualWidth, actualHeight);
             }
             else
             {
-                int keep2Q = _orientation == MapOrientation.Horizontal ? actualWidth - 3 : actualWidth / 2;
-                int keep2R = _orientation == MapOrientation.Horizontal ? actualHeight / 2 : actualHeight - 3;
-                DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, keep2Q, keep2R, poiColor);
+                int keep2Q = isVertical ? actualWidth / 2 : actualWidth - 3;
+                int keep2R = isVertical ? actualHeight - 3 : actualHeight / 2;
+                
+                if (_config.PoiSpawnMode == PoiSpawnMode.RandomEdges)
+                {
+                    if (isVertical) keep2Q = Random.Range(2, actualWidth - 2);
+                    else keep2R = Random.Range(2, actualHeight - 2);
+                }
+                else if (_config.PoiSpawnMode == PoiSpawnMode.Diagonal)
+                {
+                    if (isVertical) keep2Q = (actualWidth - 1) - poi1.x;
+                    else keep2R = (actualHeight - 1) - poi1.y;
+                }
+                poi2 = new Vector2Int(keep2Q, keep2R);
             }
+
+            DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, poi1.x, poi1.y, poiColor);
+            DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, poi2.x, poi2.y, poiColor);
 
             // Obstacles
             int numClusters = Mathf.RoundToInt((actualWidth * actualHeight) * _config.TreeDensity * 0.05f);
@@ -155,18 +181,8 @@ namespace SteelSurge.LevelEditor.Editor
             {
                 for (int q = 1; q < actualWidth - 1; q++)
                 {
-                    if (GetDistance(q, r, keep1Q, keep1R) <= _config.PoiSpotRadius) continue;
-                    if (_config.Symmetry != SymmetryType.None)
-                    {
-                        Vector2Int keep2Coords = GetSymmetricCoordinate(keep1Q, keep1R, actualWidth, actualHeight);
-                        if (GetDistance(q, r, keep2Coords.x, keep2Coords.y) <= _config.PoiSpotRadius) continue;
-                    }
-                    else
-                    {
-                        int keep2Q = _orientation == MapOrientation.Horizontal ? actualWidth - 3 : actualWidth / 2;
-                        int keep2R = _orientation == MapOrientation.Horizontal ? actualHeight / 2 : actualHeight - 3;
-                        if (GetDistance(q, r, keep2Q, keep2R) <= _config.PoiSpotRadius) continue;
-                    }
+                    if (GetDistance(q, r, poi1.x, poi1.y) <= _config.PoiSpotRadius) continue;
+                    if (GetDistance(q, r, poi2.x, poi2.y) <= _config.PoiSpotRadius) continue;
 
                     bool canSpawnTrees = true;
                     bool forceMountain = false;
@@ -310,9 +326,31 @@ namespace SteelSurge.LevelEditor.Editor
             }
         }
 
+        private float GetFractalNoisePreview(float x, float y)
+        {
+            float amplitude = 1f;
+            float frequency = 1f;
+            float noiseHeight = 0f;
+            float maxAmplitude = 0f;
+
+            for (int i = 0; i < _config.NoiseOctaves; i++)
+            {
+                float sampleX = x * frequency;
+                float sampleY = y * frequency;
+                noiseHeight += Mathf.PerlinNoise(sampleX, sampleY) * amplitude;
+                maxAmplitude += amplitude;
+                amplitude *= _config.NoisePersistence;
+                frequency *= _config.NoiseLacunarity;
+            }
+
+            return noiseHeight / maxAmplitude;
+        }
+
         private void ApplySymmetryPreview(Color[] pixels, int texWidth, int actualWidth, int actualHeight, int q, int r, Color color, System.Action<Color[], int, int, int, Color> drawAction)
         {
             if (_config.Symmetry == SymmetryType.None) return;
+            if (_config.SymmetryChaos > 0f && Random.value < _config.SymmetryChaos) return; // Chaos!
+
             Vector2Int symCoord = GetSymmetricCoordinate(q, r, actualWidth, actualHeight);
             if (symCoord.x != q || symCoord.y != r)
             {

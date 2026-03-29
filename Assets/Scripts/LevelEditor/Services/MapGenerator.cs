@@ -17,6 +17,9 @@ namespace SteelSurge.LevelEditor.Services
         private Dictionary<Vector2Int, GameObject> _spawnedHexes = new Dictionary<Vector2Int, GameObject>();
         private Dictionary<Vector2Int, GameObject> _spawnedObstacles = new Dictionary<Vector2Int, GameObject>();
 
+        public Vector2Int Poi1 { get; private set; }
+        public Vector2Int Poi2 { get; private set; }
+
         public MapGenerator(MapGenerationConfig config, int width, int height, Transform parent, int seed)
         {
             _config = config;
@@ -31,6 +34,8 @@ namespace SteelSurge.LevelEditor.Services
         {
             Clear();
             Random.InitState(_seed);
+
+            CalculatePoiPositions();
 
             GenerateBaseGrid();
             GenerateBiomes();
@@ -60,6 +65,49 @@ namespace SteelSurge.LevelEditor.Services
             }
         }
 
+        private void CalculatePoiPositions()
+        {
+            bool isVertical = _width < _height;
+            
+            int q1 = isVertical ? _width / 2 : 2;
+            int r1 = isVertical ? 2 : _height / 2;
+
+            if (_config.PoiSpawnMode == PoiSpawnMode.RandomEdges)
+            {
+                if (isVertical) q1 = Random.Range(2, _width - 2);
+                else r1 = Random.Range(2, _height - 2);
+            }
+            else if (_config.PoiSpawnMode == PoiSpawnMode.Diagonal)
+            {
+                if (isVertical) q1 = Random.value > 0.5f ? 2 : _width - 3;
+                else r1 = Random.value > 0.5f ? 2 : _height - 3;
+            }
+
+            Poi1 = new Vector2Int(q1, r1);
+
+            if (_config.Symmetry != SymmetryType.None)
+            {
+                Poi2 = _gridService.GetSymmetricCoordinate(Poi1.x, Poi1.y, _width, _height, _config.Symmetry);
+            }
+            else
+            {
+                int q2 = isVertical ? _width / 2 : _width - 3;
+                int r2 = isVertical ? _height - 3 : _height / 2;
+                
+                if (_config.PoiSpawnMode == PoiSpawnMode.RandomEdges)
+                {
+                    if (isVertical) q2 = Random.Range(2, _width - 2);
+                    else r2 = Random.Range(2, _height - 2);
+                }
+                else if (_config.PoiSpawnMode == PoiSpawnMode.Diagonal)
+                {
+                    if (isVertical) q2 = (_width - 1) - Poi1.x;
+                    else r2 = (_height - 1) - Poi1.y;
+                }
+                Poi2 = new Vector2Int(q2, r2);
+            }
+        }
+
         private void GenerateBaseGrid()
         {
             for (int r = 0; r < _height; r++)
@@ -69,6 +117,26 @@ namespace SteelSurge.LevelEditor.Services
                     SpawnHex(q, r, _config.HexGrassPrefab, _config.BaseMaterial);
                 }
             }
+        }
+
+        private float GetFractalNoise(float x, float y)
+        {
+            float amplitude = 1f;
+            float frequency = 1f;
+            float noiseHeight = 0f;
+            float maxAmplitude = 0f;
+
+            for (int i = 0; i < _config.NoiseOctaves; i++)
+            {
+                float sampleX = x * frequency;
+                float sampleY = y * frequency;
+                noiseHeight += Mathf.PerlinNoise(sampleX, sampleY) * amplitude;
+                maxAmplitude += amplitude;
+                amplitude *= _config.NoisePersistence;
+                frequency *= _config.NoiseLacunarity;
+            }
+
+            return noiseHeight / maxAmplitude;
         }
 
         private void GenerateBiomes()
@@ -87,7 +155,7 @@ namespace SteelSurge.LevelEditor.Services
             {
                 for (int q = 0; q < _width; q++)
                 {
-                    float noiseValue = Mathf.PerlinNoise((q + offsetX) * _config.NoiseScale, (r + offsetY) * _config.NoiseScale);
+                    float noiseValue = GetFractalNoise((q + offsetX) * _config.NoiseScale, (r + offsetY) * _config.NoiseScale);
                     Material materialToApply = null;
 
                     foreach (var layer in sortedLayers)
@@ -112,20 +180,8 @@ namespace SteelSurge.LevelEditor.Services
         {
             if (_config.PoiSpotMaterial == null) return;
 
-            int keep1Q = 2;
-            int keep1R = _height / 2;
-
-            ApplyPoiSpot(keep1Q, keep1R);
-
-            if (_config.Symmetry != SymmetryType.None)
-            {
-                Vector2Int keep2Coords = _gridService.GetSymmetricCoordinate(keep1Q, keep1R, _width, _height, _config.Symmetry);
-                ApplyPoiSpot(keep2Coords.x, keep2Coords.y);
-            }
-            else
-            {
-                ApplyPoiSpot(_width - 3, _height / 2);
-            }
+            ApplyPoiSpot(Poi1.x, Poi1.y);
+            ApplyPoiSpot(Poi2.x, Poi2.y);
         }
 
         private void ApplyPoiSpot(int centerQ, int centerR)
@@ -189,10 +245,8 @@ namespace SteelSurge.LevelEditor.Services
         {
             int halfHeight = _config.Symmetry == SymmetryType.None ? _height : _height / 2;
 
-            Vector2Int keep1 = new Vector2Int(2, _height / 2);
-            Vector2Int keep2 = _config.Symmetry != SymmetryType.None 
-                ? _gridService.GetSymmetricCoordinate(keep1.x, keep1.y, _width, _height, _config.Symmetry)
-                : new Vector2Int(_width - 3, _height / 2);
+            Vector2Int keep1 = Poi1;
+            Vector2Int keep2 = Poi2;
 
             bool hasRocks = _config.RockPrefabs != null && _config.RockPrefabs.Count > 0;
             bool hasTrees = _config.TreePrefabs != null && _config.TreePrefabs.Count > 0;
@@ -403,6 +457,7 @@ namespace SteelSurge.LevelEditor.Services
         private void ApplySymmetry<T>(int q, int r, T data, System.Action<int, int, T> action)
         {
             if (_config.Symmetry == SymmetryType.None) return;
+            if (_config.SymmetryChaos > 0f && Random.value < _config.SymmetryChaos) return; // Chaos! Break symmetry here
 
             Vector2Int symCoord = _gridService.GetSymmetricCoordinate(q, r, _width, _height, _config.Symmetry);
             if (symCoord.x != q || symCoord.y != r)

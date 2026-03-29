@@ -43,6 +43,9 @@ MonoBehaviour:
   - {fileID: 4371698943040364297, guid: 6b3fd99210c46dd439a5f15b9c0089fe, type: 3}
   _baseMaterial: {fileID: 2100000, guid: d411521bf7d3a684594613c2ed6bee79, type: 2}
   _noiseScale: 0.1
+  _noiseOctaves: 3
+  _noisePersistence: 0.5
+  _noiseLacunarity: 2
   _biomeLayers:
   - Material: {fileID: 2100000, guid: 6f225a644b6aa3f438c2b054b68da766, type: 2}
     Threshold: 0.4
@@ -50,6 +53,7 @@ MonoBehaviour:
     Threshold: 0.6
   - Material: {fileID: 2100000, guid: f8c961542c9161748a8d120b2d39628a, type: 2}
     Threshold: 0.8
+  _poiSpawnMode: 0
   _poiSpotMaterial: {fileID: 2100000, guid: 28ed110deefdc1f4995730543a445ad1, type: 2}
   _poiSpotRadius: 3
   _rockDensity: 0.05
@@ -64,3 +68,4 @@ MonoBehaviour:
   _borderNoiseScale: 0.2
   _borderNoiseThreshold: 0.4
   _symmetryType: 1
+  _symmetryChaos: 0.3
