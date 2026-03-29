@@ -59,21 +59,22 @@ namespace SteelSurge.LevelEditor.Editor
             }
 
             Random.InitState(_seed);
-            
+
             int actualWidth = _orientation == MapOrientation.Horizontal ? Mathf.Max(_width, _height) : Mathf.Min(_width, _height);
             int actualHeight = _orientation == MapOrientation.Horizontal ? Mathf.Min(_width, _height) : Mathf.Max(_width, _height);
 
             int texWidth = actualWidth * 10;
             int texHeight = actualHeight * 10;
-            
+
             if (_previewTexture != null)
             {
                 DestroyImmediate(_previewTexture);
             }
-            
+
             _previewTexture = new Texture2D(texWidth, texHeight, TextureFormat.RGBA32, false);
             _previewTexture.filterMode = FilterMode.Point;
 
+            // Colors
             Color baseColor = new Color(0.3f, 0.6f, 0.3f); // Base Grass
             Color lightGrassColor = new Color(0.5f, 0.8f, 0.5f);
             Color sandColor = new Color(0.8f, 0.8f, 0.4f);
@@ -82,15 +83,22 @@ namespace SteelSurge.LevelEditor.Editor
             Color treeColor = new Color(0.1f, 0.4f, 0.1f);
             Color rockColor = new Color(0.7f, 0.7f, 0.7f);
             Color poiColor = new Color(0.4f, 0.7f, 0.4f);
+            Color waterColor = new Color(0.2f, 0.5f, 0.8f); // Shallow water
+            Color deepWaterColor = new Color(0.1f, 0.3f, 0.6f); // Deep water
+            Color riverColor = new Color(0.25f, 0.55f, 0.85f); // River
 
             // Fill with base color
             Color[] pixels = new Color[texWidth * texHeight];
             for (int i = 0; i < pixels.Length; i++) pixels[i] = baseColor;
 
-            // Generate Biomes
+            // Generate Biomes & Water
             float offsetX = Random.Range(-10000f, 10000f);
             float offsetY = Random.Range(-10000f, 10000f);
             int halfHeight = _config.Symmetry == SymmetryType.None ? actualHeight : actualHeight / 2;
+
+            // Track water for rendering
+            bool[,] isWater = new bool[actualWidth, actualHeight];
+            bool[,] isDeepWater = new bool[actualWidth, actualHeight];
 
             for (int r = 0; r < halfHeight; r++)
             {
@@ -106,7 +114,6 @@ namespace SteelSurge.LevelEditor.Editor
                         {
                             if (noiseValue > layer.Threshold)
                             {
-                                // Map material to color roughly
                                 if (layer.Material.name.Contains("Dirt")) hexColor = dirtColor;
                                 else if (layer.Material.name.Contains("Sand")) hexColor = sandColor;
                                 else hexColor = lightGrassColor;
@@ -117,10 +124,23 @@ namespace SteelSurge.LevelEditor.Editor
 
                     DrawHex(pixels, texWidth, q, r, hexColor);
                     ApplySymmetryPreview(pixels, texWidth, actualWidth, actualHeight, q, r, hexColor, DrawHex);
+
+                    // Generate Lakes (water)
+                    if (_config.WaterSmallPrefab != null)
+                    {
+                        float waterNoise = GetFractalNoisePreview((q + offsetX + 5000f) * (_config.NoiseScale * 1.5f), (r + offsetY + 5000f) * (_config.NoiseScale * 1.5f));
+                        if (waterNoise > 0.65f) // WaterNoiseThreshold
+                        {
+                            bool isDeep = waterNoise > 0.75f; // DeepWaterNoiseThreshold
+                            ApplySymmetryPreview(pixels, texWidth, actualWidth, actualHeight, q, r, 
+                                isDeep ? deepWaterColor : waterColor, 
+                                (px, tw, x, y, c) => { DrawHex(px, tw, x, y, c); isWater[x, y] = true; isDeepWater[x, y] = isDeep; });
+                        }
+                    }
                 }
             }
 
-            // POI Spots
+            // POI Calculation
             bool isVertical = actualWidth < actualHeight;
             int keep1Q = isVertical ? actualWidth / 2 : 2;
             int keep1R = isVertical ? 2 : actualHeight / 2;
@@ -147,7 +167,7 @@ namespace SteelSurge.LevelEditor.Editor
             {
                 int keep2Q = isVertical ? actualWidth / 2 : actualWidth - 3;
                 int keep2R = isVertical ? actualHeight - 3 : actualHeight / 2;
-                
+
                 if (_config.PoiSpawnMode == PoiSpawnMode.RandomEdges)
                 {
                     if (isVertical) keep2Q = Random.Range(2, actualWidth - 2);
@@ -161,8 +181,46 @@ namespace SteelSurge.LevelEditor.Editor
                 poi2 = new Vector2Int(keep2Q, keep2R);
             }
 
+            // Draw POI Spots
             DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, poi1.x, poi1.y, poiColor);
             DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, poi2.x, poi2.y, poiColor);
+
+            // Random River Generation
+            if (_config.WaterSmallPrefab != null && Random.value < _config.RiverChance)
+            {
+                int riverQ = actualWidth / 2;
+                int riverCenterR = actualHeight / 2;
+                float riverNoiseOffset = Random.value * 1000f;
+
+                for (int r = 0; r < actualHeight; r++)
+                {
+                    bool isBridge = (r == riverCenterR || r == riverCenterR - 4 || r == riverCenterR + 4);
+
+                    if (!isBridge)
+                    {
+                        int wiggle = Mathf.RoundToInt(Mathf.PerlinNoise(r * 0.2f, riverNoiseOffset) * 2f - 1f);
+                        int currentQ = Mathf.Clamp(riverQ + wiggle, 2, actualWidth - 3);
+
+                        // Deep center
+                        DrawHex(pixels, texWidth, currentQ, r, riverColor);
+                        isWater[currentQ, r] = true;
+
+                        // Shallow banks
+                        if (currentQ > 0) { DrawHex(pixels, texWidth, currentQ - 1, r, waterColor); isWater[currentQ - 1, r] = true; }
+                        if (currentQ < actualWidth - 1) { DrawHex(pixels, texWidth, currentQ + 1, r, waterColor); isWater[currentQ + 1, r] = true; }
+
+                        // Symmetry
+                        if (_config.Symmetry != SymmetryType.None)
+                        {
+                            Vector2Int sym = GetSymmetricCoordinate(currentQ, r, actualWidth, actualHeight);
+                            DrawHex(pixels, texWidth, sym.x, sym.y, riverColor);
+                            isWater[sym.x, sym.y] = true;
+                            if (sym.x > 0) { DrawHex(pixels, texWidth, sym.x - 1, sym.y, waterColor); isWater[sym.x - 1, sym.y] = true; }
+                            if (sym.x < actualWidth - 1) { DrawHex(pixels, texWidth, sym.x + 1, sym.y, waterColor); isWater[sym.x + 1, sym.y] = true; }
+                        }
+                    }
+                }
+            }
 
             // Obstacles
             int numClusters = Mathf.RoundToInt((actualWidth * actualHeight) * _config.TreeDensity * 0.05f);
@@ -172,8 +230,6 @@ namespace SteelSurge.LevelEditor.Editor
                 treeClusters.Add(new Vector2Int(Random.Range(2, actualWidth - 2), Random.Range(2, halfHeight)));
             }
 
-            float treeOffsetX = Random.Range(-10000f, 10000f);
-            float treeOffsetY = Random.Range(-10000f, 10000f);
             int centerQ = actualWidth / 2;
             int centerR = actualHeight / 2;
             int safeCenterRadius = Mathf.RoundToInt(Mathf.Min(actualWidth, actualHeight) * 0.25f);
@@ -182,6 +238,16 @@ namespace SteelSurge.LevelEditor.Editor
             {
                 for (int q = 1; q < actualWidth - 1; q++)
                 {
+                    // Skip if water
+                    if (isWater[q, r]) continue;
+
+                    // Skip if already mountain from borders
+                    // (borders are drawn later, so we check distance)
+                    int distX = Mathf.Min(q, actualWidth - 1 - q);
+                    int distY = Mathf.Min(r, actualHeight - 1 - r);
+                    int distToEdge = Mathf.Min(distX, distY);
+                    if (distToEdge == 0) continue; // Border mountain
+
                     if (GetDistance(q, r, poi1.x, poi1.y) <= _config.PoiSpotRadius) continue;
                     if (GetDistance(q, r, poi2.x, poi2.y) <= _config.PoiSpotRadius) continue;
 
@@ -271,7 +337,8 @@ namespace SteelSurge.LevelEditor.Editor
                         }
                     }
 
-                    if (isMountain)
+                    // Don't draw mountains on water
+                    if (isMountain && !isWater[q, r])
                     {
                         DrawHex(pixels, texWidth, q, r, mountainColor);
                         ApplySymmetryPreview(pixels, texWidth, actualWidth, actualHeight, q, r, mountainColor, DrawHex);
