@@ -25,6 +25,7 @@ The Level Editor is a procedural map generation system for hexagonal grid-based 
 │  │ 1. PrepareParams()    — Config → GenerationParams    │   │
 │  │ 2. GenerateData()     — Thread Pool, produces HexData │   │
 │  │ 3. InstantiateMapAsync() — Main Thread, spawns prefabs│   │
+│  │ 4. BakeNavMeshAsync()  — NavMesh baking              │   │
 │  └──────────────────────────────────────────────────────┘   │
 └─────────────────────┬───────────────────────────────────────┘
                       │
@@ -34,6 +35,11 @@ The Level Editor is a procedural map generation system for hexagonal grid-based 
 │  (Hex Grid Mathematics — Coordinate Conversion, Distance)    │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+**NavMesh Integration:**
+- `NavMeshSurfacePrefab` is stored in `MapGenerationConfig`
+- After map instantiation, prefab is spawned and `BuildNavMesh()` is called
+- Prefab should contain `NavMeshSurface` component configured for your scene
 
 ---
 
@@ -102,7 +108,7 @@ Core generation engine. Executes in three phases using UniTask for async/await p
 #### Constructor
 
 ```csharp
-public MapGenerator(MapGenerationConfig config, int width, int height, Transform parent, int seed)
+public MapGenerator(MapGenerationConfig config, int width, int height, Transform parent, int seed, GameObject navMeshSurfacePrefab = null)
 ```
 
 | Parameter | Type | Description |
@@ -112,6 +118,7 @@ public MapGenerator(MapGenerationConfig config, int width, int height, Transform
 | `height` | `int` | Map height in hexes |
 | `parent` | `Transform` | Parent transform for spawned objects |
 | `seed` | `int` | Random seed for reproducibility |
+| `navMeshSurfacePrefab` | `GameObject` | Optional. Prefab with NavMeshSurface component (also read from config). |
 
 #### Public API
 
@@ -124,10 +131,10 @@ public MapGenerator(MapGenerationConfig config, int width, int height, Transform
 #### Generation Pipeline
 
 ```
-┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│  PrepareParams  │ ──► │  GenerateData   │ ──► │ InstantiateMap  │
-│  (Main Thread)  │     │  (Thread Pool)  │     │  (Main Thread)  │
-└─────────────────┘     └─────────────────┘     └─────────────────┘
+┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  PrepareParams  │ ──► │  GenerateData   │ ──► │ InstantiateMap  │ ──► │  BakeNavMesh    │
+│  (Main Thread)  │     │  (Thread Pool)  │     │  (Main Thread)  │     │  (Thread Pool)  │
+└─────────────────┘     └─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
 
 ##### Phase 1: PrepareParams()
@@ -152,13 +159,29 @@ Generation steps (in order):
 
 ##### Phase 3: InstantiateMapAsync()
 
-**Thread:** Main Thread (Unity objects)  
+**Thread:** Main Thread (Unity objects)
 **Batching:** Yields every 50 hexes via `UniTask.Yield()`
 
 Spawns prefabs based on `HexData`:
 - Water hexes → `WaterSmallPrefab` / `WaterBigPrefab`
 - Land hexes → `HexGrassPrefab` with biome material
 - Obstacles → Respective prefab at hex position
+
+##### Phase 4: BakeNavMeshAsync()
+
+**Thread:** Main Thread
+
+1. Instantiates `NavMeshSurfacePrefab` under map root
+2. Calls `NavMeshSurface.BuildNavMesh()` to bake navigation data
+3. Skipped if prefab was not provided
+
+**Prefab Requirements:**
+- Must have `NavMeshSurface` component
+- Configure `Agent Type`, `Agent Radius`, `Agent Height` as needed
+- Set up `Include Layers` for walkable objects (hexes, obstacles)
+
+**Setup:**
+- Assign prefab in `MapGenerationConfig` → `Prefabs` → `NavMesh Surface Prefab`
 
 ---
 

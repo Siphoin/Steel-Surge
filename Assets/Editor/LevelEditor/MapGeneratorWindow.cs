@@ -425,11 +425,11 @@ namespace SteelSurge.LevelEditor.Editor
                 {
                     var camSetup = (GameObject)PrefabUtility.InstantiatePrefab(_config.CameraSetupPrefab);
                     camSetup.name = "CameraSetup";
-                    
+
                     float mapWidthWorld = actualWidth * _config.HexSize * 2f;
                     float mapHeightWorld = actualHeight * _config.HexSize * 1.732051f;
                     Vector3 mapCenter = new Vector3(mapWidthWorld / 2f, 0, mapHeightWorld / 2f);
-                    
+
                     if (_orientation == MapOrientation.Horizontal)
                     {
                         camSetup.transform.position = mapCenter + new Vector3(-60f, 70f, 0f);
@@ -440,13 +440,13 @@ namespace SteelSurge.LevelEditor.Editor
                         camSetup.transform.position = mapCenter + new Vector3(0f, 70f, -60f);
                         camSetup.transform.rotation = Quaternion.Euler(50.1f, 0f, 0f);
                     }
-                    
+
                     var cam = camSetup.GetComponentInChildren<Camera>();
                     if (cam != null && cam.orthographic)
                     {
                         cam.orthographicSize = _cameraOrthoSize;
                     }
-                    
+
                     var vcam = camSetup.GetComponentInChildren(System.Type.GetType("Unity.Cinemachine.CinemachineCamera, Unity.Cinemachine"));
                     if (vcam != null)
                     {
@@ -468,7 +468,7 @@ namespace SteelSurge.LevelEditor.Editor
                     var cam = new GameObject("Main Camera");
                     cam.AddComponent<Camera>();
                     cam.tag = "MainCamera";
-                    
+
                     var light = new GameObject("Directional Light");
                     var l = light.AddComponent<Light>();
                     l.type = LightType.Directional;
@@ -476,8 +476,8 @@ namespace SteelSurge.LevelEditor.Editor
                 }
 
                 GameObject mapRoot = new GameObject("MapRoot");
-                _generator = new MapGenerator(_config, actualWidth, actualHeight, mapRoot.transform, _seed);
-                
+                _generator = new MapGenerator(_config, actualWidth, actualHeight, mapRoot.transform, _seed, _config.NavMeshSurfacePrefab);
+
                 // Start the async generation process
                 GenerateAsyncInternal(newScene, scenePath).Forget();
             };

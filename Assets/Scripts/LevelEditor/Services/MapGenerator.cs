@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using Cysharp.Threading.Tasks;
 using SteelSurge.LevelEditor.Configs;
+using Unity.AI.Navigation;
 
 namespace SteelSurge.LevelEditor.Services
 {
@@ -69,39 +70,45 @@ namespace SteelSurge.LevelEditor.Services
         private readonly int _seed;
         private readonly int _width;
         private readonly int _height;
+        private readonly GameObject _navMeshSurfacePrefab;
 
         private Dictionary<Vector2Int, GameObject> _spawnedHexes = new Dictionary<Vector2Int, GameObject>();
         private Dictionary<Vector2Int, GameObject> _spawnedObstacles = new Dictionary<Vector2Int, GameObject>();
+        private NavMeshSurface _navMeshSurface;
 
         public Vector2Int Poi1 { get; private set; }
         public Vector2Int Poi2 { get; private set; }
 
-        public MapGenerator(MapGenerationConfig config, int width, int height, Transform parent, int seed)
+        public MapGenerator(MapGenerationConfig config, int width, int height, Transform parent, int seed, GameObject navMeshSurfacePrefab = null)
         {
             _config = config;
             _width = width;
             _height = height;
             _parent = parent;
             _seed = seed;
+            _navMeshSurfacePrefab = navMeshSurfacePrefab;
             _gridService = new HexGridService(config.HexSize);
         }
 
         public async UniTask GenerateAsync()
         {
             Clear();
-            
+
             // 1. Prepare data for background thread (Unity Objects cannot be accessed off main thread)
             GenerationParams genParams = PrepareParams();
 
             // 2. Run heavy calculations on Thread Pool
             var result = await UniTask.RunOnThreadPool(() => GenerateData(genParams));
-            
+
             HexData[,] gridData = result.Grid;
             Poi1 = result.Poi1;
             Poi2 = result.Poi2;
 
             // 3. Instantiate on Main Thread
             await InstantiateMapAsync(gridData);
+
+            // 4. Bake NavMesh
+            await BakeNavMeshAsync();
         }
 
         private GenerationParams PrepareParams()
@@ -701,6 +708,31 @@ namespace SteelSurge.LevelEditor.Services
             {
                 Object.DestroyImmediate(_parent.GetChild(i).gameObject);
             }
+        }
+
+        private async UniTask BakeNavMeshAsync()
+        {
+            if (_navMeshSurfacePrefab == null)
+            {
+                Debug.LogWarning("NavMeshSurface prefab not assigned. Skipping NavMesh bake.");
+                return;
+            }
+
+            // Spawn NavMeshSurface from prefab
+            var navMeshSurfaceObj = Object.Instantiate(_navMeshSurfacePrefab, _parent);
+            navMeshSurfaceObj.name = "NavMeshSurface";
+            _navMeshSurface = navMeshSurfaceObj.GetComponent<NavMeshSurface>();
+
+            if (_navMeshSurface == null)
+            {
+                Debug.LogError("NavMeshSurface component not found on prefab!");
+                return;
+            }
+
+            // Build NavMesh on main thread
+            _navMeshSurface.BuildNavMesh();
+
+            Debug.Log($"NavMesh baked successfully.");
         }
     }
 }

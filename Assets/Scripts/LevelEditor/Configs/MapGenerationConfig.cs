@@ -18,6 +18,8 @@ namespace SteelSurge.LevelEditor.Configs
         [SerializeField, Required] private GameObject _hexGrassPrefab;
         [FoldoutGroup("Prefabs")]
         [SerializeField] private GameObject _cameraSetupPrefab;
+        [FoldoutGroup("Prefabs")]
+        [SerializeField] private GameObject _navMeshSurfacePrefab;
 
         [FoldoutGroup("Prefabs/Water")]
         [SerializeField] private GameObject _waterSmallPrefab;
@@ -93,6 +95,7 @@ namespace SteelSurge.LevelEditor.Configs
 
         public GameObject HexGrassPrefab => _hexGrassPrefab;
         public GameObject CameraSetupPrefab => _cameraSetupPrefab;
+        public GameObject NavMeshSurfacePrefab => _navMeshSurfacePrefab;
 
         public GameObject WaterSmallPrefab => _waterSmallPrefab;
         public GameObject WaterBigPrefab => _waterBigPrefab;
