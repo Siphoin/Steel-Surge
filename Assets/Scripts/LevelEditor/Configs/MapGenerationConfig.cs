@@ -60,6 +60,8 @@ namespace SteelSurge.LevelEditor.Configs
         [SerializeField] private Material _poiSpotMaterial;
         [FoldoutGroup("Points of Interest")]
         [SerializeField, Min(0)] private int _poiSpotRadius = 2;
+        [FoldoutGroup("Points of Interest")]
+        [SerializeField, Range(0, 3)] private int _poiSpotRadiusVariation = 0;
 
         [FoldoutGroup("Obstacles Settings")]
         [SerializeField, Range(0f, 1f)] private float _rockDensity = 0.05f;
@@ -115,6 +117,7 @@ namespace SteelSurge.LevelEditor.Configs
         public PoiSpawnMode PoiSpawnMode => _poiSpawnMode;
         public Material PoiSpotMaterial => _poiSpotMaterial;
         public int PoiSpotRadius => _poiSpotRadius;
+        public int PoiSpotRadiusVariation => _poiSpotRadiusVariation;
 
         public float RockDensity => _rockDensity;
         public float TreeDensity => _treeDensity;
@@ -152,7 +155,9 @@ namespace SteelSurge.LevelEditor.Configs
     public enum MapArchetype
     {
         Standard,
-        ChokePoint
+        ChokePoint,
+        Divide,
+        Forest
     }
 
     public enum PoiSpawnMode

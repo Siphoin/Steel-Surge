@@ -27,22 +27,44 @@ namespace SteelSurge.LevelEditor.Editor
         }
 
         [Title("Map Size")]
-        [SerializeField] private MapOrientation _orientation = MapOrientation.Horizontal;
-        [SerializeField, Min(10)] private int _width = 24;
-        [SerializeField, Min(10)] private int _height = 16;
+        [SerializeField, OnValueChanged("ClearPreviewCache")] private MapOrientation _orientation = MapOrientation.Horizontal;
+        [SerializeField, OnValueChanged("ClearPreviewCache"), Min(10)] private int _width = 24;
+        [SerializeField, OnValueChanged("ClearPreviewCache"), Min(10)] private int _height = 16;
 
         [Title("Environment")]
         [SerializeField] private Material _skybox;
         [SerializeField] private float _cameraOrthoSize = 33.5f;
 
         [Title("Generation Parameters")]
-        [SerializeField] private string _arenaName = "NewArena";
+        [SerializeField, OnValueChanged("ClearPreviewCache")] private string _arenaName = "NewArena";
         [SerializeField] private int _seed = 12345;
-        [SerializeField] private bool _useRandomSeed = true;
+        [SerializeField, OnValueChanged("ClearPreviewCache")] private bool _useRandomSeed = true;
 
         private MapGenerator _generator;
-
         private Texture2D _previewTexture;
+        private int? _previewSeed = null; // Seed used for last preview
+        private int _cachedWidth;
+        private int _cachedHeight;
+        
+        // Cached generation data from preview
+        private bool[,] _cachedWater;
+        private bool[,] _cachedDeepWater;
+        private bool[,] _cachedMountains;
+        private bool[,] _cachedTrees;
+        private bool[,] _cachedRocks;
+        private Vector2Int _cachedPoi1;
+        private Vector2Int _cachedPoi2;
+
+        private void ClearPreviewCache()
+        {
+            _previewSeed = null;
+            _previewTexture = null;
+            _cachedWater = null;
+            _cachedDeepWater = null;
+            _cachedMountains = null;
+            _cachedTrees = null;
+            _cachedRocks = null;
+        }
 
         [Button(ButtonSizes.Large, Name = "Generate Preview"), GUIColor(0.2f, 0.6f, 0.8f)]
         private void GeneratePreview()
@@ -62,6 +84,13 @@ namespace SteelSurge.LevelEditor.Editor
 
             int actualWidth = _orientation == MapOrientation.Horizontal ? Mathf.Max(_width, _height) : Mathf.Min(_width, _height);
             int actualHeight = _orientation == MapOrientation.Horizontal ? Mathf.Min(_width, _height) : Mathf.Max(_width, _height);
+
+            // Initialize cache arrays
+            _cachedWater = new bool[actualWidth, actualHeight];
+            _cachedDeepWater = new bool[actualWidth, actualHeight];
+            _cachedMountains = new bool[actualWidth, actualHeight];
+            _cachedTrees = new bool[actualWidth, actualHeight];
+            _cachedRocks = new bool[actualWidth, actualHeight];
 
             int texWidth = actualWidth * 10;
             int texHeight = actualHeight * 10;
@@ -96,10 +125,6 @@ namespace SteelSurge.LevelEditor.Editor
             float offsetY = Random.Range(-10000f, 10000f);
             int halfHeight = _config.Symmetry == SymmetryType.None ? actualHeight : actualHeight / 2;
 
-            // Track water for rendering
-            bool[,] isWater = new bool[actualWidth, actualHeight];
-            bool[,] isDeepWater = new bool[actualWidth, actualHeight];
-
             for (int r = 0; r < halfHeight; r++)
             {
                 for (int q = 0; q < actualWidth; q++)
@@ -132,9 +157,18 @@ namespace SteelSurge.LevelEditor.Editor
                         if (waterNoise > 0.65f) // WaterNoiseThreshold
                         {
                             bool isDeep = waterNoise > 0.75f; // DeepWaterNoiseThreshold
+                            
+                            // Cache water data before symmetry
+                            _cachedWater[q, r] = true;
+                            _cachedDeepWater[q, r] = isDeep;
+                            
                             ApplySymmetryPreview(pixels, texWidth, actualWidth, actualHeight, q, r, 
                                 isDeep ? deepWaterColor : waterColor, 
-                                (px, tw, x, y, c) => { DrawHex(px, tw, x, y, c); isWater[x, y] = true; isDeepWater[x, y] = isDeep; });
+                                (px, tw, x, y, c) => { 
+                                    DrawHex(px, tw, x, y, c); 
+                                    _cachedWater[x, y] = true;
+                                    _cachedDeepWater[x, y] = isDeep;
+                                });
                         }
                     }
                 }
@@ -181,9 +215,19 @@ namespace SteelSurge.LevelEditor.Editor
                 poi2 = new Vector2Int(keep2Q, keep2R);
             }
 
-            // Draw POI Spots
-            DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, poi1.x, poi1.y, poiColor);
-            DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, poi2.x, poi2.y, poiColor);
+            // POI radius variation for preview
+            int poi1Radius = _config.PoiSpotRadius;
+            int poi2Radius = _config.PoiSpotRadius;
+            
+            if (_config.PoiSpotRadiusVariation > 0 && _config.Symmetry == SymmetryType.None)
+            {
+                poi1Radius += Random.Range(0, _config.PoiSpotRadiusVariation + 1);
+                poi2Radius += Random.Range(0, _config.PoiSpotRadiusVariation + 1);
+            }
+
+            // Draw POI Spots with varied radius
+            DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, poi1.x, poi1.y, poiColor, poi1Radius);
+            DrawPoiSpot(pixels, texWidth, actualWidth, actualHeight, poi2.x, poi2.y, poiColor, poi2Radius);
 
             // Random River Generation
             if (_config.WaterSmallPrefab != null && Random.value < _config.RiverChance)
@@ -203,20 +247,20 @@ namespace SteelSurge.LevelEditor.Editor
 
                         // Deep center
                         DrawHex(pixels, texWidth, currentQ, r, riverColor);
-                        isWater[currentQ, r] = true;
+                        _cachedWater[currentQ, r] = true;
 
                         // Shallow banks
-                        if (currentQ > 0) { DrawHex(pixels, texWidth, currentQ - 1, r, waterColor); isWater[currentQ - 1, r] = true; }
-                        if (currentQ < actualWidth - 1) { DrawHex(pixels, texWidth, currentQ + 1, r, waterColor); isWater[currentQ + 1, r] = true; }
+                        if (currentQ > 0) { DrawHex(pixels, texWidth, currentQ - 1, r, waterColor); _cachedWater[currentQ - 1, r] = true; }
+                        if (currentQ < actualWidth - 1) { DrawHex(pixels, texWidth, currentQ + 1, r, waterColor); _cachedWater[currentQ + 1, r] = true; }
 
                         // Symmetry
                         if (_config.Symmetry != SymmetryType.None)
                         {
                             Vector2Int sym = GetSymmetricCoordinate(currentQ, r, actualWidth, actualHeight);
                             DrawHex(pixels, texWidth, sym.x, sym.y, riverColor);
-                            isWater[sym.x, sym.y] = true;
-                            if (sym.x > 0) { DrawHex(pixels, texWidth, sym.x - 1, sym.y, waterColor); isWater[sym.x - 1, sym.y] = true; }
-                            if (sym.x < actualWidth - 1) { DrawHex(pixels, texWidth, sym.x + 1, sym.y, waterColor); isWater[sym.x + 1, sym.y] = true; }
+                            _cachedWater[sym.x, sym.y] = true;
+                            if (sym.x > 0) { DrawHex(pixels, texWidth, sym.x - 1, sym.y, waterColor); _cachedWater[sym.x - 1, sym.y] = true; }
+                            if (sym.x < actualWidth - 1) { DrawHex(pixels, texWidth, sym.x + 1, sym.y, waterColor); _cachedWater[sym.x + 1, sym.y] = true; }
                         }
                     }
                 }
@@ -239,7 +283,7 @@ namespace SteelSurge.LevelEditor.Editor
                 for (int q = 1; q < actualWidth - 1; q++)
                 {
                     // Skip if water
-                    if (isWater[q, r]) continue;
+                    if (_cachedWater[q, r]) continue;
 
                     // Skip if already mountain from borders
                     // (borders are drawn later, so we check distance)
@@ -338,16 +382,33 @@ namespace SteelSurge.LevelEditor.Editor
                     }
 
                     // Don't draw mountains on water
-                    if (isMountain && !isWater[q, r])
+                    if (isMountain && !_cachedWater[q, r])
                     {
                         DrawHex(pixels, texWidth, q, r, mountainColor);
                         ApplySymmetryPreview(pixels, texWidth, actualWidth, actualHeight, q, r, mountainColor, DrawHex);
+
+                        // Cache mountain data
+                        _cachedMountains[q, r] = true;
+                        if (_config.Symmetry != SymmetryType.None)
+                        {
+                            Vector2Int sym = GetSymmetricCoordinate(q, r, actualWidth, actualHeight);
+                            _cachedMountains[sym.x, sym.y] = true;
+                        }
                     }
                 }
             }
 
             _previewTexture.SetPixels(pixels);
             _previewTexture.Apply();
+            
+            // Cache the seed and dimensions for later generation
+            _previewSeed = _seed;
+            _cachedWidth = actualWidth;
+            _cachedHeight = actualHeight;
+            _cachedPoi1 = poi1;
+            _cachedPoi2 = poi2;
+            
+            Debug.Log($"Preview generated with seed {_seed} ({actualWidth}x{actualHeight})");
         }
 
         private void DrawHex(Color[] pixels, int texWidth, int q, int r, Color color)
@@ -369,13 +430,15 @@ namespace SteelSurge.LevelEditor.Editor
             }
         }
 
-        private void DrawPoiSpot(Color[] pixels, int texWidth, int actualWidth, int actualHeight, int centerQ, int centerR, Color color)
+        private void DrawPoiSpot(Color[] pixels, int texWidth, int actualWidth, int actualHeight, int centerQ, int centerR, Color color, int radius = -1)
         {
+            int actualRadius = radius >= 0 ? radius : _config.PoiSpotRadius;
+            
             for (int r = 0; r < actualHeight; r++)
             {
                 for (int q = 0; q < actualWidth; q++)
                 {
-                    if (GetDistance(q, r, centerQ, centerR) <= _config.PoiSpotRadius)
+                    if (GetDistance(q, r, centerQ, centerR) <= actualRadius)
                     {
                         DrawHex(pixels, texWidth, q, r, color);
                     }
@@ -442,14 +505,48 @@ namespace SteelSurge.LevelEditor.Editor
             {
                 GUILayout.Space(10);
                 GUILayout.Label("Map Preview", EditorStyles.boldLabel);
-                
+
                 float aspect = (float)_previewTexture.width / _previewTexture.height;
                 float width = EditorGUIUtility.currentViewWidth - 40;
                 float height = width / aspect;
-                
+
                 Rect rect = GUILayoutUtility.GetRect(width, height);
                 GUI.DrawTexture(rect, _previewTexture, ScaleMode.ScaleToFit);
+                
+                // Show preview info
+                GUILayout.Space(5);
+                EditorGUILayout.HelpBox($"Seed: {_previewSeed?.ToString() ?? "N/A"} | {_cachedWidth}x{_cachedHeight}", MessageType.Info);
+                
+                // Legend
+                GUILayout.Space(10);
+                GUILayout.Label("Legend", EditorStyles.boldLabel);
+                
+                EditorGUILayout.BeginHorizontal();
+                DrawLegendItem("Grass", new Color(0.3f, 0.6f, 0.3f));
+                DrawLegendItem("Water", new Color(0.2f, 0.5f, 0.8f));
+                DrawLegendItem("Deep Water", new Color(0.1f, 0.3f, 0.6f));
+                DrawLegendItem("Mountain", new Color(0.5f, 0.5f, 0.5f));
+                EditorGUILayout.EndHorizontal();
+                
+                EditorGUILayout.BeginHorizontal();
+                DrawLegendItem("Trees", new Color(0.1f, 0.4f, 0.1f));
+                DrawLegendItem("Rocks", new Color(0.7f, 0.7f, 0.7f));
+                DrawLegendItem("POI Zone", new Color(0.4f, 0.7f, 0.4f));
+                EditorGUILayout.EndHorizontal();
             }
+        }
+        
+        private void DrawLegendItem(string label, Color color)
+        {
+            // Draw colored square
+            Texture2D tex = new Texture2D(16, 16);
+            Color[] pixels = new Color[16 * 16];
+            for (int i = 0; i < pixels.Length; i++) pixels[i] = color;
+            tex.SetPixels(pixels);
+            tex.Apply();
+            
+            GUILayout.Label(tex, GUILayout.Width(16), GUILayout.Height(16));
+            GUILayout.Label(label, GUILayout.Width(70));
         }
 
         [Button(ButtonSizes.Large, Name = "Generate & Save Scene"), GUIColor(0.2f, 0.8f, 0.2f)]
@@ -467,7 +564,13 @@ namespace SteelSurge.LevelEditor.Editor
                 return;
             }
 
-            if (_useRandomSeed)
+            // Use preview seed if available, otherwise generate new
+            if (_previewSeed.HasValue)
+            {
+                _seed = _previewSeed.Value;
+                Debug.Log($"Using preview seed: {_seed}");
+            }
+            else if (_useRandomSeed)
             {
                 _seed = Random.Range(0, int.MaxValue);
             }

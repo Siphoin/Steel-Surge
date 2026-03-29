@@ -22,7 +22,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _guidObject: c6624487-206e-419a-b176-2a18054fa7a8
-  _archetype: 2
+  _archetype: 0
   _hexSize: 1
   _hexGrassPrefab: {fileID: 8969223747727502975, guid: 4ec2f596e31d72342bf46074d630fed6, type: 3}
   _cameraSetupPrefab: {fileID: 5301688275595625266, guid: 968bb036764e6ab43ba7b266e4e5709d, type: 3}

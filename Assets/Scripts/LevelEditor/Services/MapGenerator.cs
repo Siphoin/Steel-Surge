@@ -32,6 +32,7 @@ namespace SteelSurge.LevelEditor.Services
         public MapArchetype Archetype;
         public PoiSpawnMode PoiSpawnMode;
         public int PoiSpotRadius;
+        public int PoiSpotRadiusVariation;
         public int SafeZoneRadius;
         
         public float NoiseScale;
@@ -123,6 +124,7 @@ namespace SteelSurge.LevelEditor.Services
                 Archetype = _config.Archetype,
                 PoiSpawnMode = _config.PoiSpawnMode,
                 PoiSpotRadius = _config.PoiSpotRadius,
+                PoiSpotRadiusVariation = _config.PoiSpotRadiusVariation,
                 SafeZoneRadius = _config.SafeZoneRadius,
                 
                 NoiseScale = _config.NoiseScale,
@@ -223,9 +225,19 @@ namespace SteelSurge.LevelEditor.Services
                 poi2 = new Vector2Int(q2, r2);
             }
 
-            // Mark POI spots
-            MarkPoiSpot(grid, p, poi1.x, poi1.y);
-            MarkPoiSpot(grid, p, poi2.x, poi2.y);
+            // Mark POI spots with potential radius variation
+            int poi1Radius = p.PoiSpotRadius;
+            int poi2Radius = p.PoiSpotRadius;
+            
+            if (p.PoiSpotRadiusVariation > 0 && p.Symmetry == SymmetryType.None)
+            {
+                // Only vary if symmetry is off (otherwise both POIs need same radius)
+                poi1Radius += rng.Next(0, p.PoiSpotRadiusVariation + 1);
+                poi2Radius += rng.Next(0, p.PoiSpotRadiusVariation + 1);
+            }
+            
+            MarkPoiSpot(grid, p, poi1.x, poi1.y, poi1Radius);
+            MarkPoiSpot(grid, p, poi2.x, poi2.y, poi2Radius);
 
             // Biomes & Water
             float offsetX = (float)(rng.NextDouble() * 20000.0 - 10000.0);
@@ -377,7 +389,7 @@ namespace SteelSurge.LevelEditor.Services
                         {
                             d.ObsType = ObstacleType.Mountain;
                             d.ObsPrefabIndex = prefabIdx;
-                        });
+                        }, independentVariant: true); // Independent prefab variant
                     }
                 }
             }
@@ -460,21 +472,21 @@ namespace SteelSurge.LevelEditor.Services
                     if (inTreeCluster)
                     {
                         int prefabIdx = rng.Next(0, p.TreePrefabsCount);
-                        ApplySymmetryToGrid(grid, p, rng, q, r, d => 
+                        ApplySymmetryToGrid(grid, p, rng, q, r, d =>
                         {
                             d.ObsType = ObstacleType.Tree;
                             d.ObsPrefabIndex = prefabIdx;
                             d.IsTreeCluster = true;
-                        });
+                        }, independentVariant: true);
                     }
                     else if (hasRocks && rng.NextDouble() < p.RockDensity)
                     {
                         int prefabIdx = rng.Next(0, p.RockPrefabsCount);
-                        ApplySymmetryToGrid(grid, p, rng, q, r, d => 
+                        ApplySymmetryToGrid(grid, p, rng, q, r, d =>
                         {
                             d.ObsType = ObstacleType.Rock;
                             d.ObsPrefabIndex = prefabIdx;
-                        });
+                        }, independentVariant: true);
                     }
                 }
             }
@@ -482,13 +494,15 @@ namespace SteelSurge.LevelEditor.Services
             return (grid, poi1, poi2);
         }
 
-        private void MarkPoiSpot(HexData[,] grid, GenerationParams p, int centerQ, int centerR)
+        private void MarkPoiSpot(HexData[,] grid, GenerationParams p, int centerQ, int centerR, int radius = -1)
         {
+            int actualRadius = radius >= 0 ? radius : p.PoiSpotRadius;
+            
             for (int r = 0; r < p.Height; r++)
             {
                 for (int q = 0; q < p.Width; q++)
                 {
-                    if (GetDistance(q, r, centerQ, centerR) <= p.PoiSpotRadius)
+                    if (GetDistance(q, r, centerQ, centerR) <= actualRadius)
                     {
                         grid[q, r].IsPoi = true;
                     }
@@ -496,7 +510,7 @@ namespace SteelSurge.LevelEditor.Services
             }
         }
 
-        private void ApplySymmetryToGrid(HexData[,] grid, GenerationParams p, System.Random rng, int q, int r, System.Action<HexData> action)
+        private void ApplySymmetryToGrid(HexData[,] grid, GenerationParams p, System.Random rng, int q, int r, System.Action<HexData> action, bool independentVariant = false)
         {
             action(grid[q, r]);
 
@@ -506,7 +520,18 @@ namespace SteelSurge.LevelEditor.Services
             Vector2Int symCoord = GetSymmetricCoordinate(q, r, p.Width, p.Height, p.Symmetry);
             if (symCoord.x != q || symCoord.y != r)
             {
-                action(grid[symCoord.x, symCoord.y]);
+                if (independentVariant && p.SymmetryChaos > 0f)
+                {
+                    // For visual variants (prefab index), apply with chaos independently
+                    if (rng.NextDouble() >= p.SymmetryChaos)
+                    {
+                        action(grid[symCoord.x, symCoord.y]);
+                    }
+                }
+                else
+                {
+                    action(grid[symCoord.x, symCoord.y]);
+                }
             }
         }
 
@@ -556,6 +581,9 @@ namespace SteelSurge.LevelEditor.Services
             int count = 0;
 
             UnityEngine.Random.InitState(_seed);
+            
+            // Separate random state for rotations
+            System.Random rotationRng = new System.Random(_seed + 1000);
 
             for (int r = 0; r < _height; r++)
             {
@@ -606,7 +634,7 @@ namespace SteelSurge.LevelEditor.Services
 
                         if (prefab != null)
                         {
-                            SpawnObstacle(q, r, prefab, isTree);
+                            SpawnObstacle(q, r, prefab, isTree, rotationRng);
                         }
                     }
 
@@ -647,14 +675,14 @@ namespace SteelSurge.LevelEditor.Services
             _spawnedHexes[new Vector2Int(q, r)] = instance;
         }
 
-        private void SpawnObstacle(int q, int r, GameObject prefab, bool isTree = false)
+        private void SpawnObstacle(int q, int r, GameObject prefab, bool isTree, System.Random rotationRng)
         {
             if (prefab == null) return;
             Vector2Int coord = new Vector2Int(q, r);
             if (_spawnedObstacles.ContainsKey(coord)) return;
 
             Vector3 basePos = _gridService.GetWorldPosition(q, r);
-            
+
             if (isTree && _config.TreesPerHex > 1)
             {
                 GameObject container = new GameObject($"Trees_{q}_{r}");
@@ -665,25 +693,32 @@ namespace SteelSurge.LevelEditor.Services
                 {
                     Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * _config.TreeSpreadRadius;
                     Vector3 offsetPos = basePos + new Vector3(randomCircle.x, 0, randomCircle.y);
-                    
+
+                    float rotationY = (float)(rotationRng.NextDouble() * 360.0);
+                    Quaternion rotation = Quaternion.Euler(0, rotationY, 0);
+
 #if UNITY_EDITOR
                     GameObject instance = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefab, container.transform);
                     instance.transform.position = offsetPos;
-                    instance.transform.rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0f, 360f), 0);
+                    instance.transform.rotation = rotation;
 #else
-                    GameObject instance = Object.Instantiate(prefab, offsetPos, Quaternion.Euler(0, UnityEngine.Random.Range(0f, 360f), 0), container.transform);
+                    GameObject instance = Object.Instantiate(prefab, offsetPos, rotation, container.transform);
 #endif
                 }
                 _spawnedObstacles[coord] = container;
             }
             else
             {
+                // Random rotation for mountains, rocks and single trees
+                float rotationY = (float)(rotationRng.NextDouble() * 360.0);
+                Quaternion rotation = Quaternion.Euler(0, rotationY, 0);
+                
 #if UNITY_EDITOR
                 GameObject instance = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefab, _parent);
                 instance.transform.position = basePos;
-                instance.transform.rotation = isTree ? Quaternion.Euler(0, UnityEngine.Random.Range(0f, 360f), 0) : Quaternion.identity;
+                instance.transform.rotation = rotation;
 #else
-                GameObject instance = Object.Instantiate(prefab, basePos, isTree ? Quaternion.Euler(0, UnityEngine.Random.Range(0f, 360f), 0) : Quaternion.identity, _parent);
+                GameObject instance = Object.Instantiate(prefab, basePos, rotation, _parent);
 #endif
                 instance.name = $"{prefab.name}_{q}_{r}";
                 _spawnedObstacles[coord] = instance;
