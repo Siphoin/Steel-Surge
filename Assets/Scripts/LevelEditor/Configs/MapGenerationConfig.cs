@@ -157,7 +157,11 @@ namespace SteelSurge.LevelEditor.Configs
         Standard,
         ChokePoint,
         Divide,
-        Forest
+        Forest,
+        Canyon,
+        Plains,
+        Lowland,
+        Mountainous
     }
 
     public enum PoiSpawnMode

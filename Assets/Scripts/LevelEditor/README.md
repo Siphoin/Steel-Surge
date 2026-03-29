@@ -56,7 +56,7 @@ Configuration asset that stores all generation parameters.
 
 | Category | Property | Type | Description |
 |----------|----------|------|-------------|
-| **Map** | `Archetype` | `MapArchetype` | Map layout type (`Standard`, `ChokePoint`) |
+| **Map** | `Archetype` | `MapArchetype` | Map layout type (`Standard`, `ChokePoint`, `Divide`, `Forest`, `Canyon`, `Plains`, `Lowland`, `Mountainous`) |
 | | `HexSize` | `float` | Size of hexagon in world units (default: 1.0) |
 | **Prefabs** | `HexGrassPrefab` | `GameObject` | Base hex tile prefab |
 | | `CameraSetupPrefab` | `GameObject` | Camera rig prefab |
@@ -312,6 +312,112 @@ void ApplySymmetryToGrid(grid, params, rng, q, r, action)
 ### ChokePoint Archetype
 
 Forces mountain walls along vertical center line (except ±2 rows from center).
+Creates a narrow passage for RTS battles.
+
+```
+[Горы] [Горы] [Горы] [Горы] [Горы]
+[Горы] [Лес] [Проход] [Лес] [Горы]
+[Горы] [Лес] [Проход] [Лес] [Горы]
+[Горы] [Горы] [Горы] [Горы] [Горы]
+```
+
+### Divide Archetype
+
+River/division down the center with bridges (every 8 rows, 3 hexes wide).
+RTS-style map with two sides connected by bridges.
+
+```
+[База 1] [Лес] [Горы] [Река] [Горы] [Лес] [База 2]
+[Лес] [Лес] [Горы] [Мост] [Горы] [Лес] [Лес]
+[Лес] [Лес] [Лес] [Река] [Лес] [Лес] [Лес]
+```
+
+**Features:**
+- Mountain banks along the divide
+- Bridges every 8 rows (3 hexes wide)
+- Clear zones around POIs for base building
+- Neutral center zone
+
+### Forest Archetype
+
+Dense forest with clear paths for RTS unit movement.
+
+```
+[Деревья] [Деревья] [Тропа] [Деревья] [Деревья]
+[Деревья] [Тропа] [Поляна] [Тропа] [Деревья]
+[Деревья] [Деревья] [Тропа] [Деревья] [Деревья]
+```
+
+**Features:**
+- Direct path between POIs (main battle lane)
+- Paths from POIs to center
+- Central clearing for battles
+- Dense forest everywhere else (limits unit movement)
+
+### Canyon Archetype
+
+Canyon with mountain walls and narrow passage through center.
+
+```
+[Горы] [Горы] [Лес] [Лес] [Лес] [Горы] [Горы]
+[Горы] [Стены] [Каньон] [Каньон] [Стены] [Горы]
+[Горы] [Горы] [Камни] [Камни] [Горы] [Горы]
+```
+
+**Features:**
+- Mountain walls on both sides of canyon
+- Scattered rocks on canyon floor (15% chance)
+- Clear POI zones for base building
+- Narrow central passage for tactical battles
+
+### Plains Archetype
+
+Open plains with minimal obstacles.
+
+```
+[Трава] [Трава] [Трава] [Трава] [Трава]
+[Трава] [Трава] [Камни] [Трава] [Трава]
+[Трава] [Трава] [Трава] [Трава] [Трава]
+```
+
+**Features:**
+- No trees (open visibility)
+- Very sparse rocks (5% chance)
+- Ideal for ranged combat
+- Fast unit movement
+
+### Lowland Archetype
+
+Lowland with wetlands in center and higher ground on edges.
+
+```
+[Камни] [Камни] [Камни] [Камни] [Камни]
+[Камни] [Деревья] [Деревья] [Деревья] [Камни]
+[Камни] [Деревья] [Болото] [Деревья] [Камни]
+```
+
+**Features:**
+- Trees in central lowland area
+- Rocks on higher ground (edges)
+- Natural defensive positions on edges
+- Wetland-like center
+
+### Mountainous Archetype (Кавказ)
+
+Mountainous terrain with scattered peaks and valleys like Caucasus.
+
+```
+[Горы] [Лес] [Горы] [Горы] [Лес]
+[Лес] [Горы] [Лес] [Горы] [Лес]
+[Горы] [Лес] [Горы] [Лес] [Горы]
+```
+
+**Features:**
+- 30% of map covered with scattered mountains
+- Perlin noise distribution for natural look
+- Valleys have sparse trees
+- Larger clear zones around POIs
+- Multiple possible paths through mountains
 
 ---
 
@@ -327,6 +433,29 @@ if (isMountain && p.MountainPrefabsCount > 0 && !grid[q, r].IsWater)
 ---
 
 ## Usage Example
+
+### In Editor
+
+1. Open `SteelSurge → Level Editor`
+2. Select a config from the dropdown (auto-loads from `Assets/System/Configs/LevelEditor`)
+3. Adjust map size and orientation
+4. Click **Generate Preview** to see the map
+5. Click **Generate & Save Scene** to create the full map
+
+### Available Configs
+
+| Config | Archetype | Description |
+|--------|-----------|-------------|
+| StandardArena | Standard | Balanced map with moderate obstacles |
+| ChokePointArena | ChokePoint | Narrow central passage |
+| DivideArena | Divide | River with bridges |
+| ForestArena | Forest | Dense forest with clear paths |
+| CanyonArena | Canyon | Mountain walls with central passage |
+| PlainsArena | Plains | Open terrain, minimal obstacles |
+| LowlandArena | Lowland | Trees in center, rocks on edges |
+| MountainousArena | Mountainous | Scattered mountains (Caucasus-style) |
+
+### Via Code
 
 ```csharp
 // In Editor or Runtime

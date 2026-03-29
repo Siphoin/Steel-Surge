@@ -426,22 +426,219 @@ namespace SteelSurge.LevelEditor.Services
 
                     bool canSpawnTrees = hasTrees;
                     bool forceMountain = false;
+                    bool forceClear = false; // Force clear area (no obstacles)
+                    bool forceRock = false; // Force rocks for certain archetypes
 
                     if (p.Archetype == MapArchetype.ChokePoint)
                     {
+                        // Mountain wall down the center (except near center POI)
+                        // Creates a narrow passage for RTS battles
                         if (Mathf.Abs(q - centerQ) <= 1 && Mathf.Abs(r - centerR) > 2)
                             forceMountain = true;
+                    }
+                    else if (p.Archetype == MapArchetype.Divide)
+                    {
+                        // River/division down the center with bridges
+                        // RTS-style map with two sides connected by bridges
+                        int divideLine = p.Width / 2;
+                        int bridgeEvery = 8; // Bridges every 8 rows
+                        int bridgeWidth = 3; // Each bridge is 3 hexes wide
+                        bool isBridge = (r % bridgeEvery < bridgeWidth);
+
+                        // Create mountain banks along the divide (except at bridges)
+                        if (Mathf.Abs(q - divideLine) <= 1 && !isBridge)
+                        {
+                            forceMountain = true;
+                        }
+
+                        // Clear larger area around POIs for base building
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= p.PoiSpotRadius + 3 ||
+                            GetDistance(q, r, poi2.x, poi2.y) <= p.PoiSpotRadius + 3)
+                        {
+                            forceClear = true;
+                        }
+
+                        // Clear center area for neutral zone
+                        if (GetDistance(q, r, centerQ, centerR) <= 5)
+                        {
+                            forceClear = true;
+                        }
+                    }
+                    else if (p.Archetype == MapArchetype.Forest)
+                    {
+                        // Dense forest with clear paths for RTS unit movement
+                        // Paths from POIs to center and between POIs
+                        int pathWidth = 3; // Wide enough for unit groups
+                        bool inPath = false;
+
+                        // Direct path between POI1 and POI2 (main battle lane)
+                        int steps = Mathf.Max(Mathf.Abs(poi2.x - poi1.x), Mathf.Abs(poi2.y - poi1.y));
+                        for (int step = 0; step <= steps; step++)
+                        {
+                            float t = steps > 0 ? step / (float)steps : 0;
+                            int pathQ = Mathf.RoundToInt(Mathf.Lerp(poi1.x, poi2.x, t));
+                            int pathR = Mathf.RoundToInt(Mathf.Lerp(poi1.y, poi2.y, t));
+
+                            if (GetDistance(q, r, pathQ, pathR) <= pathWidth)
+                            {
+                                inPath = true;
+                                break;
+                            }
+                        }
+
+                        // Path from POI1 to center
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= pathWidth + 2 &&
+                            GetDistance(q, r, centerQ, centerR) <= 8)
+                            inPath = true;
+
+                        // Path from POI2 to center
+                        if (GetDistance(q, r, poi2.x, poi2.y) <= pathWidth + 2 &&
+                            GetDistance(q, r, centerQ, centerR) <= 8)
+                            inPath = true;
+
+                        // Central clearing for battles
+                        if (GetDistance(q, r, centerQ, centerR) <= 6)
+                            inPath = true;
+
+                        if (inPath)
+                        {
+                            forceClear = true;
+                            canSpawnTrees = false;
+                        }
+                        else
+                        {
+                            // Dense forest everywhere else - limits unit movement
+                            canSpawnTrees = hasTrees;
+                        }
+                    }
+                    else if (p.Archetype == MapArchetype.Canyon)
+                    {
+                        // Canyon with walls and narrow passage
+                        // Mountains on sides, clear path in center
+                        int canyonCenter = p.Width / 2;
+                        int canyonWidth = 4;
+                        int wallDistance = canyonWidth + 2;
+                        
+                        // Mountain walls on both sides of canyon
+                        if (Mathf.Abs(q - canyonCenter) >= wallDistance && 
+                            Mathf.Abs(q - canyonCenter) <= wallDistance + 2)
+                        {
+                            forceMountain = true;
+                        }
+                        
+                        // Scattered rocks in canyon floor
+                        if (Mathf.Abs(q - canyonCenter) <= canyonWidth)
+                        {
+                            if (rng.NextDouble() < 0.15f) // 15% chance for rocks
+                                forceRock = true;
+                        }
+                        
+                        // Clear POI zones
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= p.PoiSpotRadius + 2 ||
+                            GetDistance(q, r, poi2.x, poi2.y) <= p.PoiSpotRadius + 2)
+                        {
+                            forceClear = true;
+                        }
+                    }
+                    else if (p.Archetype == MapArchetype.Plains)
+                    {
+                        // Open plains - minimal obstacles
+                        // Only scattered rocks, no trees/mountains except borders
+                        canSpawnTrees = false; // No trees on plains
+                        
+                        // Very sparse rocks (5% chance)
+                        if (rng.NextDouble() < 0.05f)
+                            forceRock = true;
+                        
+                        // Clear POI zones
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= p.PoiSpotRadius + 1 ||
+                            GetDistance(q, r, poi2.x, poi2.y) <= p.PoiSpotRadius + 1)
+                        {
+                            forceClear = true;
+                        }
+                    }
+                    else if (p.Archetype == MapArchetype.Lowland)
+                    {
+                        // Lowland with wetlands and higher ground on edges
+                        // Trees in low areas, rocks on high ground
+                        int distFromCenter = Mathf.Max(Mathf.Abs(q - centerQ), Mathf.Abs(r - centerR));
+                        int lowlandRadius = Mathf.Min(p.Width, p.Height) / 3;
+                        
+                        if (distFromCenter <= lowlandRadius)
+                        {
+                            // Central lowland - more trees, some water patches
+                            canSpawnTrees = hasTrees;
+                        }
+                        else
+                        {
+                            // Higher ground - rocks instead of trees
+                            canSpawnTrees = false;
+                            if (rng.NextDouble() < 0.2f)
+                                forceRock = true;
+                        }
+                        
+                        // Clear POI zones
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= p.PoiSpotRadius + 2 ||
+                            GetDistance(q, r, poi2.x, poi2.y) <= p.PoiSpotRadius + 2)
+                        {
+                            forceClear = true;
+                        }
+                    }
+                    else if (p.Archetype == MapArchetype.Mountainous)
+                    {
+                        // Mountainous terrain like Caucasus
+                        // Scattered mountains throughout, narrow valleys
+                        float mountainNoise = Mathf.PerlinNoise(q * 0.15f, r * 0.15f);
+                        
+                        // 30% of map is mountains (scattered)
+                        if (mountainNoise > 0.7f && p.MountainPrefabsCount > 0)
+                        {
+                            // Don't block POIs completely
+                            if (GetDistance(q, r, poi1.x, poi1.y) > p.PoiSpotRadius + 3 &&
+                                GetDistance(q, r, poi2.x, poi2.y) > p.PoiSpotRadius + 3)
+                            {
+                                int prefabIdx = rng.Next(0, p.MountainPrefabsCount);
+                                ApplySymmetryToGrid(grid, p, rng, q, r, d =>
+                                {
+                                    d.ObsType = ObstacleType.Mountain;
+                                    d.ObsPrefabIndex = prefabIdx;
+                                });
+                                continue;
+                            }
+                        }
+                        
+                        // Valleys have sparse trees
+                        if (mountainNoise < 0.4f)
+                        {
+                            canSpawnTrees = hasTrees;
+                        }
+                        else
+                        {
+                            canSpawnTrees = false;
+                        }
+                        
+                        // Clear POI zones (larger for mountainous)
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= p.PoiSpotRadius + 4 ||
+                            GetDistance(q, r, poi2.x, poi2.y) <= p.PoiSpotRadius + 4)
+                        {
+                            forceClear = true;
+                        }
                     }
 
                     if (forceMountain && p.MountainPrefabsCount > 0)
                     {
                         int prefabIdx = rng.Next(0, p.MountainPrefabsCount);
-                        ApplySymmetryToGrid(grid, p, rng, q, r, d => 
+                        ApplySymmetryToGrid(grid, p, rng, q, r, d =>
                         {
                             d.ObsType = ObstacleType.Mountain;
                             d.ObsPrefabIndex = prefabIdx;
                         });
                         continue;
+                    }
+
+                    if (forceClear)
+                    {
+                        continue; // Skip obstacle spawning
                     }
 
                     if (p.Archetype == MapArchetype.Standard && GetDistance(q, r, centerQ, centerR) <= safeCenterRadius)
@@ -479,7 +676,7 @@ namespace SteelSurge.LevelEditor.Services
                             d.IsTreeCluster = true;
                         }, independentVariant: true);
                     }
-                    else if (hasRocks && rng.NextDouble() < p.RockDensity)
+                    else if (forceRock || (hasRocks && rng.NextDouble() < p.RockDensity))
                     {
                         int prefabIdx = rng.Next(0, p.RockPrefabsCount);
                         ApplySymmetryToGrid(grid, p, rng, q, r, d =>

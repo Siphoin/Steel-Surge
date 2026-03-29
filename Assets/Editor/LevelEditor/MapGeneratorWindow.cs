@@ -5,6 +5,7 @@ using Sirenix.OdinInspector.Editor;
 using Cysharp.Threading.Tasks;
 using SteelSurge.LevelEditor.Configs;
 using SteelSurge.LevelEditor.Services;
+using System.Linq;
 
 namespace SteelSurge.LevelEditor.Editor
 {
@@ -13,12 +14,35 @@ namespace SteelSurge.LevelEditor.Editor
         [MenuItem("SteelSurge/Level Editor")]
         private static void OpenWindow()
         {
-            GetWindow<MapGeneratorWindow>("Level Editor").Show();
+            var window = GetWindow<MapGeneratorWindow>("Level Editor");
+            window.Show();
+            window.LoadConfigs();
         }
 
         [Title("Map Generation Settings")]
-        [InlineEditor(InlineEditorObjectFieldModes.Boxed)]
-        [SerializeField] private MapGenerationConfig _config;
+        [SerializeField] private string _configPath = "Assets/System/Configs/LevelEditor";
+        
+        private MapGenerationConfig[] _availableConfigs;
+        private string[] _configNames;
+        private int _selectedConfigIndex = 0;
+        private MapGenerationConfig _config;
+
+        private void LoadConfigs()
+        {
+            var guids = AssetDatabase.FindAssets("t:MapGenerationConfig", new[] { _configPath });
+            _availableConfigs = guids.Select(guid => AssetDatabase.LoadAssetAtPath<MapGenerationConfig>(AssetDatabase.GUIDToAssetPath(guid)))
+                                     .Where(config => config != null)
+                                     .OrderBy(config => config.name)
+                                     .ToArray();
+            
+            _configNames = _availableConfigs.Select(c => c.name).ToArray();
+            
+            if (_selectedConfigIndex >= _configNames.Length)
+                _selectedConfigIndex = 0;
+            
+            if (_availableConfigs.Length > 0)
+                _config = _availableConfigs[_selectedConfigIndex];
+        }
 
         public enum MapOrientation
         {
@@ -64,6 +88,42 @@ namespace SteelSurge.LevelEditor.Editor
             _cachedMountains = null;
             _cachedTrees = null;
             _cachedRocks = null;
+        }
+
+        [OnInspectorGUI]
+        private void DrawConfigDropdown()
+        {
+            LoadConfigs();
+            
+            GUILayout.Space(10);
+            GUILayout.Label("Map Generation Config", EditorStyles.boldLabel);
+            
+            if (_configNames == null || _configNames.Length == 0)
+            {
+                EditorGUILayout.HelpBox($"No configs found in {_configPath}", MessageType.Warning);
+                return;
+            }
+
+            EditorGUI.BeginChangeCheck();
+            _selectedConfigIndex = EditorGUILayout.Popup("Config", _selectedConfigIndex, _configNames);
+            if (EditorGUI.EndChangeCheck())
+            {
+                _config = _availableConfigs[_selectedConfigIndex];
+                ClearPreviewCache();
+            }
+
+            if (_config != null)
+            {
+                GUILayout.Space(5);
+                EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+                EditorGUILayout.LabelField("Archetype:", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(_config.Archetype.ToString());
+                EditorGUILayout.LabelField("Symmetry:", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(_config.Symmetry.ToString());
+                EditorGUILayout.LabelField("Tree Density:", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField(_config.TreeDensity.ToString("F2"));
+                EditorGUILayout.EndVertical();
+            }
         }
 
         [Button(ButtonSizes.Large, Name = "Generate Preview"), GUIColor(0.2f, 0.6f, 0.8f)]
@@ -297,6 +357,8 @@ namespace SteelSurge.LevelEditor.Editor
 
                     bool canSpawnTrees = true;
                     bool forceMountain = false;
+                    bool forceClear = false;
+                    bool forceRock = false;
 
                     // Apply Archetype logic
                     if (_config.Archetype == MapArchetype.ChokePoint)
@@ -309,10 +371,162 @@ namespace SteelSurge.LevelEditor.Editor
                             }
                         }
                     }
+                    else if (_config.Archetype == MapArchetype.Divide)
+                    {
+                        int divideLine = actualWidth / 2;
+                        int bridgeEvery = 8;
+                        int bridgeWidth = 3;
+                        bool isBridge = (r % bridgeEvery < bridgeWidth);
+
+                        if (Mathf.Abs(q - divideLine) <= 1 && !isBridge)
+                        {
+                            forceMountain = true;
+                        }
+
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= _config.PoiSpotRadius + 3 ||
+                            GetDistance(q, r, poi2.x, poi2.y) <= _config.PoiSpotRadius + 3 ||
+                            GetDistance(q, r, centerQ, centerR) <= 5)
+                        {
+                            forceClear = true;
+                        }
+                    }
+                    else if (_config.Archetype == MapArchetype.Forest)
+                    {
+                        int pathWidth = 3;
+                        bool inPath = false;
+
+                        // Path between POIs
+                        int steps = Mathf.Max(Mathf.Abs(poi2.x - poi1.x), Mathf.Abs(poi2.y - poi1.y));
+                        for (int step = 0; step <= steps; step++)
+                        {
+                            float t = steps > 0 ? step / (float)steps : 0;
+                            int pathQ = Mathf.RoundToInt(Mathf.Lerp(poi1.x, poi2.x, t));
+                            int pathR = Mathf.RoundToInt(Mathf.Lerp(poi1.y, poi2.y, t));
+
+                            if (GetDistance(q, r, pathQ, pathR) <= pathWidth)
+                            {
+                                inPath = true;
+                                break;
+                            }
+                        }
+
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= pathWidth + 2 && GetDistance(q, r, centerQ, centerR) <= 8)
+                            inPath = true;
+                        if (GetDistance(q, r, poi2.x, poi2.y) <= pathWidth + 2 && GetDistance(q, r, centerQ, centerR) <= 8)
+                            inPath = true;
+                        if (GetDistance(q, r, centerQ, centerR) <= 6)
+                            inPath = true;
+
+                        if (inPath)
+                        {
+                            forceClear = true;
+                            canSpawnTrees = false;
+                        }
+                    }
+                    else if (_config.Archetype == MapArchetype.Canyon)
+                    {
+                        int canyonCenter = actualWidth / 2;
+                        int canyonWidth = 4;
+                        int wallDistance = canyonWidth + 2;
+                        
+                        if (Mathf.Abs(q - canyonCenter) >= wallDistance && 
+                            Mathf.Abs(q - canyonCenter) <= wallDistance + 2)
+                        {
+                            forceMountain = true;
+                        }
+                        
+                        if (Mathf.Abs(q - canyonCenter) <= canyonWidth)
+                        {
+                            if (Random.value < 0.15f)
+                                forceRock = true;
+                        }
+                        
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= _config.PoiSpotRadius + 2 ||
+                            GetDistance(q, r, poi2.x, poi2.y) <= _config.PoiSpotRadius + 2)
+                        {
+                            forceClear = true;
+                        }
+                    }
+                    else if (_config.Archetype == MapArchetype.Plains)
+                    {
+                        canSpawnTrees = false;
+                        
+                        if (Random.value < 0.05f)
+                            forceRock = true;
+                        
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= _config.PoiSpotRadius + 1 ||
+                            GetDistance(q, r, poi2.x, poi2.y) <= _config.PoiSpotRadius + 1)
+                        {
+                            forceClear = true;
+                        }
+                    }
+                    else if (_config.Archetype == MapArchetype.Lowland)
+                    {
+                        int distFromCenter = Mathf.Max(Mathf.Abs(q - centerQ), Mathf.Abs(r - centerR));
+                        int lowlandRadius = Mathf.Min(actualWidth, actualHeight) / 3;
+                        
+                        if (distFromCenter <= lowlandRadius)
+                        {
+                            canSpawnTrees = true;
+                        }
+                        else
+                        {
+                            canSpawnTrees = false;
+                            if (Random.value < 0.2f)
+                                forceRock = true;
+                        }
+                        
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= _config.PoiSpotRadius + 2 ||
+                            GetDistance(q, r, poi2.x, poi2.y) <= _config.PoiSpotRadius + 2)
+                        {
+                            forceClear = true;
+                        }
+                    }
+                    else if (_config.Archetype == MapArchetype.Mountainous)
+                    {
+                        float mountainNoise = Mathf.PerlinNoise(q * 0.15f, r * 0.15f);
+                        
+                        if (mountainNoise > 0.7f)
+                        {
+                            if (GetDistance(q, r, poi1.x, poi1.y) > _config.PoiSpotRadius + 3 &&
+                                GetDistance(q, r, poi2.x, poi2.y) > _config.PoiSpotRadius + 3)
+                            {
+                                forceMountain = true;
+                            }
+                        }
+                        
+                        if (mountainNoise < 0.4f)
+                        {
+                            canSpawnTrees = true;
+                        }
+                        else
+                        {
+                            canSpawnTrees = false;
+                        }
+                        
+                        if (GetDistance(q, r, poi1.x, poi1.y) <= _config.PoiSpotRadius + 4 ||
+                            GetDistance(q, r, poi2.x, poi2.y) <= _config.PoiSpotRadius + 4)
+                        {
+                            forceClear = true;
+                        }
+                    }
+
+                    if (forceClear)
+                    {
+                        continue;
+                    }
+
                     if (forceMountain)
                     {
                         DrawHex(pixels, texWidth, q, r, mountainColor);
                         ApplySymmetryPreview(pixels, texWidth, actualWidth, actualHeight, q, r, mountainColor, DrawHex);
+                        continue;
+                    }
+                    
+                    if (forceRock)
+                    {
+                        DrawHex(pixels, texWidth, q, r, rockColor);
+                        ApplySymmetryPreview(pixels, texWidth, actualWidth, actualHeight, q, r, rockColor, DrawHex);
                         continue;
                     }
 

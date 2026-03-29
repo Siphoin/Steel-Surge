@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 652c5057fc0a96947b56e89add0c2156, type: 3}
+  m_Name: LowlandArena
+  m_EditorClassIdentifier: LevelEditor::SteelSurge.LevelEditor.Configs.MapGenerationConfig
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  _guidObject: f6674487-206e-419a-b176-2a18054fa806
+  _archetype: 7
+  _hexSize: 1
+  _hexGrassPrefab: {fileID: 8969223747727502975, guid: 4ec2f596e31d72342bf46074d630fed6, type: 3}
+  _cameraSetupPrefab: {fileID: 5301688275595625266, guid: 968bb036764e6ab43ba7b266e4e5709d, type: 3}
+  _navMeshSurfacePrefab: {fileID: 743149311592005234, guid: f8d7aa9bd43e0dd4a899b8d860e21395, type: 3}
+  _waterSmallPrefab: {fileID: 8969223747727502975, guid: 49f40ec54e2a3504dabb5b297710b4c4, type: 3}
+  _waterBigPrefab: {fileID: 8969223747727502975, guid: 91b07fa637b736645b85796ea7cdbad3, type: 3}
+  _riverChance: 0.25
+  _mountainPrefabs:
+  - {fileID: 1784092176601380465, guid: bd59a9824cfbfd440bf5f956e2ce48e7, type: 3}
+  - {fileID: 2070315157839524442, guid: 66a39d939cbb3f94fb0ef078c5c0e819, type: 3}
+  _treePrefabs:
+  - {fileID: 1711244032317245508, guid: aff298edcd62a334485bf0ab01609ccc, type: 3}
+  - {fileID: 1711244032317245508, guid: aff298edcd62a334485bf0ab01609ccc, type: 3}
+  _rockPrefabs:
+  - {fileID: 8521807422104082101, guid: 0de592fb7f7353146ad36e730e07724c, type: 3}
+  - {fileID: 2544573756954154855, guid: dd51a8efdbc0d0b439c4155636074d43, type: 3}
+  - {fileID: 1511807824781405865, guid: 87cb3a9cacb144c4b8f2b251fdc84958, type: 3}
+  _baseMaterial: {fileID: 2100000, guid: d411521bf7d3a684594613c2ed6bee79, type: 2}
+  _noiseScale: 0.08
+  _noiseOctaves: 3
+  _noisePersistence: 0.5
+  _noiseLacunarity: 2
+  _biomeLayers:
+  - Material: {fileID: 2100000, guid: 6f225a644b6aa3f438c2b054b68da766, type: 2}
+    Threshold: 0.45
+  _poiSpawnMode: 0
+  _poiSpotMaterial: {fileID: 2100000, guid: 28ed110deefdc1f4995730543a445ad1, type: 2}
+  _poiSpotRadius: 3
+  _poiSpotRadiusVariation: 2
+  _rockDensity: 0.15
+  _treeDensity: 0.45
+  _treeNoiseScale: 0.12
+  _treeNoiseThreshold: 0.75
+  _treeClusterDensity: 0.8
+  _treesPerHex: 3
+  _treeSpreadRadius: 0.6
+  _safeZoneRadius: 4
+  _maxBorderDepth: 3
+  _borderNoiseScale: 0.22
+  _borderNoiseThreshold: 0.4
+  _symmetryType: 1
+  _symmetryChaos: 0.25
