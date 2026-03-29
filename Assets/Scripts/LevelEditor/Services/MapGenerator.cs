@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 using Cysharp.Threading.Tasks;
 using SteelSurge.LevelEditor.Configs;
 
@@ -15,6 +16,9 @@ namespace SteelSurge.LevelEditor.Services
         public ObstacleType ObsType = ObstacleType.None;
         public int ObsPrefabIndex = -1;
         public bool IsTreeCluster = false;
+        
+        public bool IsWater = false;
+        public bool IsDeepWater = false;
     }
 
     public struct GenerationParams
@@ -40,6 +44,8 @@ namespace SteelSurge.LevelEditor.Services
         public float BorderNoiseScale;
         public float BorderNoiseThreshold;
         
+        public float RiverChance;
+
         public float TreeDensity;
         public float TreeNoiseThreshold;
         public float TreeClusterDensity;
@@ -48,6 +54,11 @@ namespace SteelSurge.LevelEditor.Services
         public int MountainPrefabsCount;
         public int TreePrefabsCount;
         public int RockPrefabsCount;
+
+        public bool HasWaterPrefab;
+        public float WaterNoiseScale;
+        public float WaterNoiseThreshold;
+        public float DeepWaterNoiseThreshold;
     }
 
     public class MapGenerator
@@ -116,6 +127,8 @@ namespace SteelSurge.LevelEditor.Services
                 BorderNoiseScale = _config.BorderNoiseScale,
                 BorderNoiseThreshold = _config.BorderNoiseThreshold,
                 
+                RiverChance = _config.RiverChance,
+
                 TreeDensity = _config.TreeDensity,
                 TreeNoiseThreshold = _config.TreeNoiseThreshold,
                 TreeClusterDensity = _config.TreeClusterDensity,
@@ -123,7 +136,12 @@ namespace SteelSurge.LevelEditor.Services
                 
                 MountainPrefabsCount = _config.MountainPrefabs?.Count ?? 0,
                 TreePrefabsCount = _config.TreePrefabs?.Count ?? 0,
-                RockPrefabsCount = _config.RockPrefabs?.Count ?? 0
+                RockPrefabsCount = _config.RockPrefabs?.Count ?? 0,
+                
+                HasWaterPrefab = _config.WaterSmallPrefab != null,
+                WaterNoiseScale = _config.NoiseScale * 1.5f, // Slightly smaller patches than biomes
+                WaterNoiseThreshold = 0.65f, // Threshold for shallow water
+                DeepWaterNoiseThreshold = 0.75f // Threshold for deep water
             };
 
             if (_config.BiomeLayers != null)
@@ -202,7 +220,7 @@ namespace SteelSurge.LevelEditor.Services
             MarkPoiSpot(grid, p, poi1.x, poi1.y);
             MarkPoiSpot(grid, p, poi2.x, poi2.y);
 
-            // Biomes
+            // Biomes & Water
             float offsetX = (float)(rng.NextDouble() * 20000.0 - 10000.0);
             float offsetY = (float)(rng.NextDouble() * 20000.0 - 10000.0);
             int halfHeight = p.Symmetry == SymmetryType.None ? p.Height : p.Height / 2;
@@ -226,6 +244,92 @@ namespace SteelSurge.LevelEditor.Services
                     if (biomeIdx != -1)
                     {
                         ApplySymmetryToGrid(grid, p, rng, q, r, d => d.BiomeIndex = biomeIdx);
+                    }
+
+                    // Generate Lakes
+                    if (p.HasWaterPrefab)
+                    {
+                        float waterNoise = GetFractalNoise(q + offsetX + 5000f, r + offsetY + 5000f, p);
+                        if (waterNoise > p.WaterNoiseThreshold)
+                        {
+                            // Don't spawn water on POIs
+                            if (GetDistance(q, r, poi1.x, poi1.y) > p.PoiSpotRadius &&
+                                GetDistance(q, r, poi2.x, poi2.y) > p.PoiSpotRadius)
+                            {
+                                bool isDeep = waterNoise > p.DeepWaterNoiseThreshold;
+                                ApplySymmetryToGrid(grid, p, rng, q, r, d => 
+                                {
+                                    d.IsWater = true;
+                                    d.IsDeepWater = isDeep;
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Random River Generation
+            if (p.HasWaterPrefab && rng.NextDouble() < p.RiverChance)
+            {
+                int riverQ = p.Width / 2;
+                int riverCenterR = p.Height / 2;
+                
+                // Add some noise to the river path
+                float riverNoiseOffset = (float)(rng.NextDouble() * 1000f);
+                
+                for (int r = 0; r < p.Height; r++)
+                {
+                    // Create bridges (land) at specific intervals
+                    bool isBridge = (r == riverCenterR || r == riverCenterR - 4 || r == riverCenterR + 4);
+                    
+                    if (!isBridge)
+                    {
+                        // Wiggle the river slightly
+                        int wiggle = Mathf.RoundToInt(Mathf.PerlinNoise(r * 0.2f, riverNoiseOffset) * 2f - 1f);
+                        int currentQ = Mathf.Clamp(riverQ + wiggle, 2, p.Width - 3);
+
+                        grid[currentQ, r].IsWater = true;
+                        grid[currentQ, r].IsDeepWater = true;
+                        
+                        // Shallow banks
+                        grid[currentQ - 1, r].IsWater = true;
+                        grid[currentQ - 1, r].IsDeepWater = false;
+                        grid[currentQ + 1, r].IsWater = true;
+                        grid[currentQ + 1, r].IsDeepWater = false;
+
+                        if (p.Symmetry != SymmetryType.None)
+                        {
+                            Vector2Int symCoord = GetSymmetricCoordinate(currentQ, r, p.Width, p.Height, p.Symmetry);
+                            grid[symCoord.x, symCoord.y].IsWater = true;
+                            grid[symCoord.x, symCoord.y].IsDeepWater = true;
+                            
+                            if (symCoord.x > 0)
+                            {
+                                grid[symCoord.x - 1, symCoord.y].IsWater = true;
+                                grid[symCoord.x - 1, symCoord.y].IsDeepWater = false;
+                            }
+                            if (symCoord.x < p.Width - 1)
+                            {
+                                grid[symCoord.x + 1, symCoord.y].IsWater = true;
+                                grid[symCoord.x + 1, symCoord.y].IsDeepWater = false;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Ensure bridges are clear of water
+                        int currentQ = riverQ;
+                        grid[currentQ, r].IsWater = false;
+                        grid[currentQ - 1, r].IsWater = false;
+                        grid[currentQ + 1, r].IsWater = false;
+                        
+                        if (p.Symmetry != SymmetryType.None)
+                        {
+                            Vector2Int symCoord = GetSymmetricCoordinate(currentQ, r, p.Width, p.Height, p.Symmetry);
+                            grid[symCoord.x, symCoord.y].IsWater = false;
+                            if (symCoord.x > 0) grid[symCoord.x - 1, symCoord.y].IsWater = false;
+                            if (symCoord.x < p.Width - 1) grid[symCoord.x + 1, symCoord.y].IsWater = false;
+                        }
                     }
                 }
             }
@@ -258,10 +362,11 @@ namespace SteelSurge.LevelEditor.Services
                         }
                     }
 
-                    if (isMountain && p.MountainPrefabsCount > 0)
+                    // Do not spawn mountains on water
+                    if (isMountain && p.MountainPrefabsCount > 0 && !grid[q, r].IsWater)
                     {
                         int prefabIdx = rng.Next(0, p.MountainPrefabsCount);
-                        ApplySymmetryToGrid(grid, p, rng, q, r, d => 
+                        ApplySymmetryToGrid(grid, p, rng, q, r, d =>
                         {
                             d.ObsType = ObstacleType.Mountain;
                             d.ObsPrefabIndex = prefabIdx;
@@ -290,6 +395,7 @@ namespace SteelSurge.LevelEditor.Services
                 for (int q = 1; q < p.Width - 1; q++)
                 {
                     if (grid[q, r].ObsType != ObstacleType.None) continue; // Already occupied (e.g. border)
+                    if (grid[q, r].IsWater) continue; // Do not spawn obstacles on water
 
                     if (GetDistance(q, r, poi1.x, poi1.y) <= p.PoiSpotRadius ||
                         GetDistance(q, r, poi2.x, poi2.y) <= p.PoiSpotRadius)
@@ -305,11 +411,6 @@ namespace SteelSurge.LevelEditor.Services
                     if (p.Archetype == MapArchetype.ChokePoint)
                     {
                         if (Mathf.Abs(q - centerQ) <= 1 && Mathf.Abs(r - centerR) > 2)
-                            forceMountain = true;
-                    }
-                    else if (p.Archetype == MapArchetype.Divided)
-                    {
-                        if (q == centerQ && r != centerR && r != centerR - 3 && r != centerR + 3)
                             forceMountain = true;
                     }
 
@@ -455,14 +556,30 @@ namespace SteelSurge.LevelEditor.Services
                 {
                     HexData data = grid[q, r];
 
-                    // 1. Spawn Base Hex
-                    Material mat = _config.BaseMaterial;
-                    if (data.IsPoi && _config.PoiSpotMaterial != null) 
-                        mat = _config.PoiSpotMaterial;
-                    else if (data.BiomeIndex >= 0 && data.BiomeIndex < _config.BiomeLayers.Count) 
-                        mat = _config.BiomeLayers[data.BiomeIndex].Material;
+                    // 1. Spawn Base Hex or Water
+                    if (data.IsWater)
+                    {
+                        GameObject waterPrefab = data.IsDeepWater ? _config.WaterBigPrefab : _config.WaterSmallPrefab;
+                        if (waterPrefab != null)
+                        {
+                            SpawnHex(q, r, waterPrefab, null);
+                        }
+                        else
+                        {
+                            // Fallback if prefabs are missing
+                            SpawnHex(q, r, _config.HexGrassPrefab, _config.BaseMaterial);
+                        }
+                    }
+                    else
+                    {
+                        Material mat = _config.BaseMaterial;
+                        if (data.IsPoi && _config.PoiSpotMaterial != null) 
+                            mat = _config.PoiSpotMaterial;
+                        else if (data.BiomeIndex >= 0 && data.BiomeIndex < _config.BiomeLayers.Count) 
+                            mat = _config.BiomeLayers[data.BiomeIndex].Material;
 
-                    SpawnHex(q, r, _config.HexGrassPrefab, mat);
+                        SpawnHex(q, r, _config.HexGrassPrefab, mat);
+                    }
 
                     // 2. Spawn Obstacle
                     if (data.ObsType != ObstacleType.None)
@@ -496,17 +613,18 @@ namespace SteelSurge.LevelEditor.Services
             }
         }
 
-        private void SpawnHex(int q, int r, GameObject prefab, Material material)
+        private void SpawnHex(int q, int r, GameObject prefab, Material material, float rotationY = 0f)
         {
             if (prefab == null) return;
             Vector3 pos = _gridService.GetWorldPosition(q, r);
+            Quaternion rot = Quaternion.Euler(0, rotationY, 0);
             
 #if UNITY_EDITOR
             GameObject instance = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefab, _parent);
             instance.transform.position = pos;
-            instance.transform.rotation = Quaternion.identity;
+            instance.transform.rotation = rot;
 #else
-            GameObject instance = Object.Instantiate(prefab, pos, Quaternion.identity, _parent);
+            GameObject instance = Object.Instantiate(prefab, pos, rot, _parent);
 #endif
             instance.name = $"Hex_{q}_{r}";
             

@@ -19,6 +19,13 @@ namespace SteelSurge.LevelEditor.Configs
         [FoldoutGroup("Prefabs")]
         [SerializeField] private GameObject _cameraSetupPrefab;
 
+        [FoldoutGroup("Prefabs/Water")]
+        [SerializeField] private GameObject _waterSmallPrefab;
+        [FoldoutGroup("Prefabs/Water")]
+        [SerializeField] private GameObject _waterBigPrefab;
+        [FoldoutGroup("Prefabs/Water")]
+        [SerializeField, Range(0f, 1f)] private float _riverChance = 0.3f;
+
         [FoldoutGroup("Prefabs/Obstacles")]
         [SerializeField, ListDrawerSettings(ShowIndexLabels = true)] 
         private List<GameObject> _mountainPrefabs = new List<GameObject>();
@@ -87,6 +94,10 @@ namespace SteelSurge.LevelEditor.Configs
         public GameObject HexGrassPrefab => _hexGrassPrefab;
         public GameObject CameraSetupPrefab => _cameraSetupPrefab;
 
+        public GameObject WaterSmallPrefab => _waterSmallPrefab;
+        public GameObject WaterBigPrefab => _waterBigPrefab;
+        public float RiverChance => _riverChance;
+
         public IReadOnlyList<GameObject> MountainPrefabs => _mountainPrefabs;
         public IReadOnlyList<GameObject> TreePrefabs => _treePrefabs;
         public IReadOnlyList<GameObject> RockPrefabs => _rockPrefabs;
@@ -138,8 +149,7 @@ namespace SteelSurge.LevelEditor.Configs
     public enum MapArchetype
     {
         Standard,
-        ChokePoint,
-        Divided
+        ChokePoint
     }
 
     public enum PoiSpawnMode

@@ -52,6 +52,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: rock_single_D
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: e317b426aaf17c24bb491e7c92f93c86, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

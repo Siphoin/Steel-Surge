@@ -199,17 +199,6 @@ namespace SteelSurge.LevelEditor.Editor
                             }
                         }
                     }
-                    else if (_config.Archetype == MapArchetype.Divided)
-                    {
-                        if (q == centerQ)
-                        {
-                            if (r != centerR && r != centerR - 3 && r != centerR + 3)
-                            {
-                                forceMountain = true;
-                            }
-                        }
-                    }
-
                     if (forceMountain)
                     {
                         DrawHex(pixels, texWidth, q, r, mountainColor);
