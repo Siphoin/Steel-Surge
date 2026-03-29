@@ -234,9 +234,42 @@ namespace SteelSurge.LevelEditor.Services
 
                     GameObject prefabToSpawn = null;
                     bool canSpawnTrees = hasTrees;
+                    bool forceMountain = false;
 
-                    // Keep the center of the map open (like ArenaForest)
-                    if (_gridService.GetDistance(q, r, centerQ, centerR) <= safeCenterRadius)
+                    // Apply Archetype logic
+                    if (_config.Archetype == MapArchetype.ChokePoint)
+                    {
+                        // Create a mountain wall in the middle with a gap
+                        if (Mathf.Abs(q - centerQ) <= 1)
+                        {
+                            if (Mathf.Abs(r - centerR) > 2) // Gap size
+                            {
+                                forceMountain = true;
+                            }
+                        }
+                    }
+                    else if (_config.Archetype == MapArchetype.Divided)
+                    {
+                        // Create a river/void (represented by mountains for now) across the map
+                        if (q == centerQ)
+                        {
+                            if (r != centerR && r != centerR - 3 && r != centerR + 3) // Bridges
+                            {
+                                forceMountain = true;
+                            }
+                        }
+                    }
+
+                    if (forceMountain && _config.MountainPrefabs != null && _config.MountainPrefabs.Count > 0)
+                    {
+                        prefabToSpawn = _config.MountainPrefabs[Random.Range(0, _config.MountainPrefabs.Count)];
+                        SpawnObstacle(q, r, prefabToSpawn, false);
+                        ApplySymmetry(q, r, prefabToSpawn, (sq, sr, p) => SpawnObstacle(sq, sr, p, false));
+                        continue;
+                    }
+
+                    // Keep the center of the map open (like ArenaForest) for Standard archetype
+                    if (_config.Archetype == MapArchetype.Standard && _gridService.GetDistance(q, r, centerQ, centerR) <= safeCenterRadius)
                     {
                         canSpawnTrees = false; // No trees in the center
                     }

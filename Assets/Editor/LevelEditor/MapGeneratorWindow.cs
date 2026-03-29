@@ -168,7 +168,43 @@ namespace SteelSurge.LevelEditor.Editor
                         if (GetDistance(q, r, keep2Q, keep2R) <= _config.PoiSpotRadius) continue;
                     }
 
-                    bool canSpawnTrees = GetDistance(q, r, centerQ, centerR) > safeCenterRadius;
+                    bool canSpawnTrees = true;
+                    bool forceMountain = false;
+
+                    // Apply Archetype logic
+                    if (_config.Archetype == MapArchetype.ChokePoint)
+                    {
+                        if (Mathf.Abs(q - centerQ) <= 1)
+                        {
+                            if (Mathf.Abs(r - centerR) > 2)
+                            {
+                                forceMountain = true;
+                            }
+                        }
+                    }
+                    else if (_config.Archetype == MapArchetype.Divided)
+                    {
+                        if (q == centerQ)
+                        {
+                            if (r != centerR && r != centerR - 3 && r != centerR + 3)
+                            {
+                                forceMountain = true;
+                            }
+                        }
+                    }
+
+                    if (forceMountain)
+                    {
+                        DrawHex(pixels, texWidth, q, r, mountainColor);
+                        ApplySymmetryPreview(pixels, texWidth, actualWidth, actualHeight, q, r, mountainColor, DrawHex);
+                        continue;
+                    }
+
+                    if (_config.Archetype == MapArchetype.Standard && GetDistance(q, r, centerQ, centerR) <= safeCenterRadius)
+                    {
+                        canSpawnTrees = false;
+                    }
+
                     bool inTreeCluster = false;
 
                     if (canSpawnTrees)

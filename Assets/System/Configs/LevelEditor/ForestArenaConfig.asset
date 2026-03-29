@@ -22,11 +22,9 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   _guidObject: c6624487-206e-419a-b176-2a18054fa7a8
-  _width: 20
-  _height: 30
+  _archetype: 1
   _hexSize: 1
   _hexGrassPrefab: {fileID: 8969223747727502975, guid: 4ec2f596e31d72342bf46074d630fed6, type: 3}
-  _keepPrefab: {fileID: 1320367859915830205, guid: 0c30eb8488537d341b7c8c04fbb028fd, type: 3}
   _cameraSetupPrefab: {fileID: 5301688275595625266, guid: 968bb036764e6ab43ba7b266e4e5709d, type: 3}
   _mountainPrefabs:
   - {fileID: 1784092176601380465, guid: bd59a9824cfbfd440bf5f956e2ce48e7, type: 3}
@@ -62,4 +60,7 @@ MonoBehaviour:
   _treesPerHex: 3
   _treeSpreadRadius: 0.6
   _safeZoneRadius: 3
+  _maxBorderDepth: 3
+  _borderNoiseScale: 0.2
+  _borderNoiseThreshold: 0.4
   _symmetryType: 1

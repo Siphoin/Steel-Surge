@@ -10,6 +10,8 @@ namespace SteelSurge.LevelEditor.Configs
     public class MapGenerationConfig : ScriptableConfig
     {
         [FoldoutGroup("Map Settings")]
+        [SerializeField] private MapArchetype _archetype = MapArchetype.Standard;
+        [FoldoutGroup("Map Settings")]
         [SerializeField] private float _hexSize = 1f;
 
         [FoldoutGroup("Prefabs")]
@@ -69,6 +71,7 @@ namespace SteelSurge.LevelEditor.Configs
         [FoldoutGroup("Symmetry")]
         [SerializeField] private SymmetryType _symmetryType = SymmetryType.Point;
 
+        public MapArchetype Archetype => _archetype;
         public float HexSize => _hexSize;
 
         public GameObject HexGrassPrefab => _hexGrassPrefab;
@@ -115,5 +118,12 @@ namespace SteelSurge.LevelEditor.Configs
         Point,
         Horizontal,
         Vertical
+    }
+
+    public enum MapArchetype
+    {
+        Standard,
+        ChokePoint,
+        Divided
     }
 }
