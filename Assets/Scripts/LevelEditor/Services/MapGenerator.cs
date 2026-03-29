@@ -6,6 +6,50 @@ using SteelSurge.LevelEditor.Configs;
 
 namespace SteelSurge.LevelEditor.Services
 {
+    public enum ObstacleType { None, Tree, Rock, Mountain }
+
+    public class HexData
+    {
+        public int BiomeIndex = -1;
+        public bool IsPoi = false;
+        public ObstacleType ObsType = ObstacleType.None;
+        public int ObsPrefabIndex = -1;
+        public bool IsTreeCluster = false;
+    }
+
+    public struct GenerationParams
+    {
+        public int Width;
+        public int Height;
+        public int Seed;
+        public SymmetryType Symmetry;
+        public float SymmetryChaos;
+        public MapArchetype Archetype;
+        public PoiSpawnMode PoiSpawnMode;
+        public int PoiSpotRadius;
+        public int SafeZoneRadius;
+        
+        public float NoiseScale;
+        public int NoiseOctaves;
+        public float NoisePersistence;
+        public float NoiseLacunarity;
+        public float[] BiomeThresholds;
+        public int[] BiomeOriginalIndices;
+        
+        public int MaxBorderDepth;
+        public float BorderNoiseScale;
+        public float BorderNoiseThreshold;
+        
+        public float TreeDensity;
+        public float TreeNoiseThreshold;
+        public float TreeClusterDensity;
+        public float RockDensity;
+        
+        public int MountainPrefabsCount;
+        public int TreePrefabsCount;
+        public int RockPrefabsCount;
+    }
+
     public class MapGenerator
     {
         private readonly MapGenerationConfig _config;
@@ -34,208 +78,168 @@ namespace SteelSurge.LevelEditor.Services
         public async UniTask GenerateAsync()
         {
             Clear();
-            Random.InitState(_seed);
-
-            CalculatePoiPositions();
-
-            await GenerateBaseGridAsync();
-            await GenerateBiomesAsync();
-            await GeneratePoiSpotsAsync();
-            await GenerateBordersAsync();
-            await GenerateObstaclesAsync();
-        }
-
-        public void Clear()
-        {
-            foreach (var hex in _spawnedHexes.Values)
-            {
-                if (hex != null) Object.DestroyImmediate(hex);
-            }
-            _spawnedHexes.Clear();
-
-            foreach (var obs in _spawnedObstacles.Values)
-            {
-                if (obs != null) Object.DestroyImmediate(obs);
-            }
-            _spawnedObstacles.Clear();
-
-            // Fallback to clear all children if any left
-            for (int i = _parent.childCount - 1; i >= 0; i--)
-            {
-                Object.DestroyImmediate(_parent.GetChild(i).gameObject);
-            }
-        }
-
-        private void CalculatePoiPositions()
-        {
-            bool isVertical = _width < _height;
             
-            int q1 = isVertical ? _width / 2 : 2;
-            int r1 = isVertical ? 2 : _height / 2;
+            // 1. Prepare data for background thread (Unity Objects cannot be accessed off main thread)
+            GenerationParams genParams = PrepareParams();
 
-            if (_config.PoiSpawnMode == PoiSpawnMode.RandomEdges)
-            {
-                if (isVertical) q1 = Random.Range(2, _width - 2);
-                else r1 = Random.Range(2, _height - 2);
-            }
-            else if (_config.PoiSpawnMode == PoiSpawnMode.Diagonal)
-            {
-                if (isVertical) q1 = Random.value > 0.5f ? 2 : _width - 3;
-                else r1 = Random.value > 0.5f ? 2 : _height - 3;
-            }
+            // 2. Run heavy calculations on Thread Pool
+            var result = await UniTask.RunOnThreadPool(() => GenerateData(genParams));
+            
+            HexData[,] gridData = result.Grid;
+            Poi1 = result.Poi1;
+            Poi2 = result.Poi2;
 
-            Poi1 = new Vector2Int(q1, r1);
+            // 3. Instantiate on Main Thread
+            await InstantiateMapAsync(gridData);
+        }
 
-            if (_config.Symmetry != SymmetryType.None)
+        private GenerationParams PrepareParams()
+        {
+            var p = new GenerationParams
             {
-                Poi2 = _gridService.GetSymmetricCoordinate(Poi1.x, Poi1.y, _width, _height, _config.Symmetry);
+                Width = _width,
+                Height = _height,
+                Seed = _seed,
+                Symmetry = _config.Symmetry,
+                SymmetryChaos = _config.SymmetryChaos,
+                Archetype = _config.Archetype,
+                PoiSpawnMode = _config.PoiSpawnMode,
+                PoiSpotRadius = _config.PoiSpotRadius,
+                SafeZoneRadius = _config.SafeZoneRadius,
+                
+                NoiseScale = _config.NoiseScale,
+                NoiseOctaves = _config.NoiseOctaves,
+                NoisePersistence = _config.NoisePersistence,
+                NoiseLacunarity = _config.NoiseLacunarity,
+                
+                MaxBorderDepth = _config.MaxBorderDepth,
+                BorderNoiseScale = _config.BorderNoiseScale,
+                BorderNoiseThreshold = _config.BorderNoiseThreshold,
+                
+                TreeDensity = _config.TreeDensity,
+                TreeNoiseThreshold = _config.TreeNoiseThreshold,
+                TreeClusterDensity = _config.TreeClusterDensity,
+                RockDensity = _config.RockDensity,
+                
+                MountainPrefabsCount = _config.MountainPrefabs?.Count ?? 0,
+                TreePrefabsCount = _config.TreePrefabs?.Count ?? 0,
+                RockPrefabsCount = _config.RockPrefabs?.Count ?? 0
+            };
+
+            if (_config.BiomeLayers != null)
+            {
+                var sorted = _config.BiomeLayers
+                    .Select((layer, index) => new { layer, index })
+                    .OrderByDescending(x => x.layer.Threshold)
+                    .ToList();
+                    
+                p.BiomeThresholds = sorted.Select(x => x.layer.Threshold).ToArray();
+                p.BiomeOriginalIndices = sorted.Select(x => x.index).ToArray();
             }
             else
             {
-                int q2 = isVertical ? _width / 2 : _width - 3;
-                int r2 = isVertical ? _height - 3 : _height / 2;
+                p.BiomeThresholds = new float[0];
+                p.BiomeOriginalIndices = new int[0];
+            }
+
+            return p;
+        }
+
+        private (HexData[,] Grid, Vector2Int Poi1, Vector2Int Poi2) GenerateData(GenerationParams p)
+        {
+            System.Random rng = new System.Random(p.Seed);
+            HexData[,] grid = new HexData[p.Width, p.Height];
+            for (int x = 0; x < p.Width; x++)
+            {
+                for (int y = 0; y < p.Height; y++)
+                {
+                    grid[x, y] = new HexData();
+                }
+            }
+
+            // Calculate POIs
+            bool isVertical = p.Width < p.Height;
+            int q1 = isVertical ? p.Width / 2 : 2;
+            int r1 = isVertical ? 2 : p.Height / 2;
+
+            if (p.PoiSpawnMode == PoiSpawnMode.RandomEdges)
+            {
+                if (isVertical) q1 = rng.Next(2, p.Width - 2);
+                else r1 = rng.Next(2, p.Height - 2);
+            }
+            else if (p.PoiSpawnMode == PoiSpawnMode.Diagonal)
+            {
+                if (isVertical) q1 = rng.NextDouble() > 0.5 ? 2 : p.Width - 3;
+                else r1 = rng.NextDouble() > 0.5 ? 2 : p.Height - 3;
+            }
+
+            Vector2Int poi1 = new Vector2Int(q1, r1);
+            Vector2Int poi2;
+
+            if (p.Symmetry != SymmetryType.None)
+            {
+                poi2 = GetSymmetricCoordinate(poi1.x, poi1.y, p.Width, p.Height, p.Symmetry);
+            }
+            else
+            {
+                int q2 = isVertical ? p.Width / 2 : p.Width - 3;
+                int r2 = isVertical ? p.Height - 3 : p.Height / 2;
                 
-                if (_config.PoiSpawnMode == PoiSpawnMode.RandomEdges)
+                if (p.PoiSpawnMode == PoiSpawnMode.RandomEdges)
                 {
-                    if (isVertical) q2 = Random.Range(2, _width - 2);
-                    else r2 = Random.Range(2, _height - 2);
+                    if (isVertical) q2 = rng.Next(2, p.Width - 2);
+                    else r2 = rng.Next(2, p.Height - 2);
                 }
-                else if (_config.PoiSpawnMode == PoiSpawnMode.Diagonal)
+                else if (p.PoiSpawnMode == PoiSpawnMode.Diagonal)
                 {
-                    if (isVertical) q2 = (_width - 1) - Poi1.x;
-                    else r2 = (_height - 1) - Poi1.y;
+                    if (isVertical) q2 = (p.Width - 1) - poi1.x;
+                    else r2 = (p.Height - 1) - poi1.y;
                 }
-                Poi2 = new Vector2Int(q2, r2);
-            }
-        }
-
-        private async UniTask GenerateBaseGridAsync()
-        {
-            int batchSize = 50;
-            int count = 0;
-
-            for (int r = 0; r < _height; r++)
-            {
-                for (int q = 0; q < _width; q++)
-                {
-                    SpawnHex(q, r, _config.HexGrassPrefab, _config.BaseMaterial);
-                    
-                    count++;
-                    if (count >= batchSize)
-                    {
-                        count = 0;
-                        await UniTask.Yield();
-                    }
-                }
-            }
-        }
-
-        private float GetFractalNoise(float x, float y)
-        {
-            float amplitude = 1f;
-            float frequency = 1f;
-            float noiseHeight = 0f;
-            float maxAmplitude = 0f;
-
-            for (int i = 0; i < _config.NoiseOctaves; i++)
-            {
-                float sampleX = x * frequency;
-                float sampleY = y * frequency;
-                noiseHeight += Mathf.PerlinNoise(sampleX, sampleY) * amplitude;
-                maxAmplitude += amplitude;
-                amplitude *= _config.NoisePersistence;
-                frequency *= _config.NoiseLacunarity;
+                poi2 = new Vector2Int(q2, r2);
             }
 
-            return noiseHeight / maxAmplitude;
-        }
+            // Mark POI spots
+            MarkPoiSpot(grid, p, poi1.x, poi1.y);
+            MarkPoiSpot(grid, p, poi2.x, poi2.y);
 
-        private async UniTask GenerateBiomesAsync()
-        {
-            if (_config.BiomeLayers == null || _config.BiomeLayers.Count == 0) return;
-
-            var sortedLayers = _config.BiomeLayers.OrderByDescending(l => l.Threshold).ToList();
-
-            float offsetX = Random.Range(-10000f, 10000f);
-            float offsetY = Random.Range(-10000f, 10000f);
-
-            int halfHeight = _config.Symmetry == SymmetryType.None ? _height : _height / 2;
-            int batchSize = 50;
-            int count = 0;
+            // Biomes
+            float offsetX = (float)(rng.NextDouble() * 20000.0 - 10000.0);
+            float offsetY = (float)(rng.NextDouble() * 20000.0 - 10000.0);
+            int halfHeight = p.Symmetry == SymmetryType.None ? p.Height : p.Height / 2;
 
             for (int r = 0; r < halfHeight; r++)
             {
-                for (int q = 0; q < _width; q++)
+                for (int q = 0; q < p.Width; q++)
                 {
-                    float noiseValue = GetFractalNoise((q + offsetX) * _config.NoiseScale, (r + offsetY) * _config.NoiseScale);
-                    Material materialToApply = null;
+                    float noiseValue = GetFractalNoise(q + offsetX, r + offsetY, p);
+                    int biomeIdx = -1;
 
-                    foreach (var layer in sortedLayers)
+                    for (int i = 0; i < p.BiomeThresholds.Length; i++)
                     {
-                        if (noiseValue > layer.Threshold)
+                        if (noiseValue > p.BiomeThresholds[i])
                         {
-                            materialToApply = layer.Material;
+                            biomeIdx = p.BiomeOriginalIndices[i];
                             break;
                         }
                     }
 
-                    if (materialToApply != null)
+                    if (biomeIdx != -1)
                     {
-                        ApplyMaterialToHex(q, r, materialToApply);
-                        ApplySymmetry(q, r, materialToApply, ApplyMaterialToHex);
-                    }
-
-                    count++;
-                    if (count >= batchSize)
-                    {
-                        count = 0;
-                        await UniTask.Yield();
+                        ApplySymmetryToGrid(grid, p, rng, q, r, d => d.BiomeIndex = biomeIdx);
                     }
                 }
             }
-        }
 
-        private async UniTask GeneratePoiSpotsAsync()
-        {
-            if (_config.PoiSpotMaterial == null) return;
-
-            ApplyPoiSpot(Poi1.x, Poi1.y);
-            await UniTask.Yield();
-            ApplyPoiSpot(Poi2.x, Poi2.y);
-            await UniTask.Yield();
-        }
-
-        private void ApplyPoiSpot(int centerQ, int centerR)
-        {
-            for (int r = 0; r < _height; r++)
-            {
-                for (int q = 0; q < _width; q++)
-                {
-                    if (_gridService.GetDistance(q, r, centerQ, centerR) <= _config.PoiSpotRadius)
-                    {
-                        ApplyMaterialToHex(q, r, _config.PoiSpotMaterial);
-                    }
-                }
-            }
-        }
-
-        private async UniTask GenerateBordersAsync()
-        {
-            if (_config.MountainPrefabs == null || _config.MountainPrefabs.Count == 0) return;
-
-            float borderOffsetX = Random.Range(-10000f, 10000f);
-            float borderOffsetY = Random.Range(-10000f, 10000f);
-            int halfHeight = _config.Symmetry == SymmetryType.None ? _height : _height / 2;
-            
-            int batchSize = 20;
-            int count = 0;
+            // Borders
+            float borderOffsetX = (float)(rng.NextDouble() * 20000.0 - 10000.0);
+            float borderOffsetY = (float)(rng.NextDouble() * 20000.0 - 10000.0);
 
             for (int r = 0; r < halfHeight; r++)
             {
-                for (int q = 0; q < _width; q++)
+                for (int q = 0; q < p.Width; q++)
                 {
-                    int distX = Mathf.Min(q, _width - 1 - q);
-                    int distY = Mathf.Min(r, _height - 1 - r);
+                    int distX = Mathf.Min(q, p.Width - 1 - q);
+                    int distY = Mathf.Min(r, p.Height - 1 - r);
                     int distToEdge = Mathf.Min(distX, distY);
 
                     bool isMountain = false;
@@ -244,119 +248,83 @@ namespace SteelSurge.LevelEditor.Services
                     {
                         isMountain = true;
                     }
-                    else if (distToEdge <= _config.MaxBorderDepth)
+                    else if (distToEdge <= p.MaxBorderDepth)
                     {
-                        float noise = Mathf.PerlinNoise((q + borderOffsetX) * _config.BorderNoiseScale, (r + borderOffsetY) * _config.BorderNoiseScale);
-                        float adjustedThreshold = _config.BorderNoiseThreshold + (distToEdge * 0.15f);
+                        float noise = Mathf.PerlinNoise((q + borderOffsetX) * p.BorderNoiseScale, (r + borderOffsetY) * p.BorderNoiseScale);
+                        float adjustedThreshold = p.BorderNoiseThreshold + (distToEdge * 0.15f);
                         if (noise > adjustedThreshold)
                         {
                             isMountain = true;
                         }
                     }
 
-                    if (isMountain)
+                    if (isMountain && p.MountainPrefabsCount > 0)
                     {
-                        GameObject randomMountain = _config.MountainPrefabs[Random.Range(0, _config.MountainPrefabs.Count)];
-                        SpawnObstacle(q, r, randomMountain, false);
-                        ApplySymmetry(q, r, randomMountain, (sq, sr, prefab) => SpawnObstacle(sq, sr, prefab, false));
-                        
-                        count++;
-                        if (count >= batchSize)
+                        int prefabIdx = rng.Next(0, p.MountainPrefabsCount);
+                        ApplySymmetryToGrid(grid, p, rng, q, r, d => 
                         {
-                            count = 0;
-                            await UniTask.Yield();
-                        }
+                            d.ObsType = ObstacleType.Mountain;
+                            d.ObsPrefabIndex = prefabIdx;
+                        });
                     }
                 }
             }
-        }
 
-        private async UniTask GenerateObstaclesAsync()
-        {
-            int halfHeight = _config.Symmetry == SymmetryType.None ? _height : _height / 2;
+            // Obstacles
+            bool hasRocks = p.RockPrefabsCount > 0;
+            bool hasTrees = p.TreePrefabsCount > 0;
 
-            Vector2Int keep1 = Poi1;
-            Vector2Int keep2 = Poi2;
-
-            bool hasRocks = _config.RockPrefabs != null && _config.RockPrefabs.Count > 0;
-            bool hasTrees = _config.TreePrefabs != null && _config.TreePrefabs.Count > 0;
-
-            int numClusters = Mathf.RoundToInt((_width * _height) * _config.TreeDensity * 0.05f);
+            int numClusters = Mathf.RoundToInt((p.Width * p.Height) * p.TreeDensity * 0.05f);
             List<Vector2Int> treeClusters = new List<Vector2Int>();
-            
             for (int i = 0; i < numClusters; i++)
             {
-                int cq = Random.Range(2, _width - 2);
-                int cr = Random.Range(2, halfHeight);
-                treeClusters.Add(new Vector2Int(cq, cr));
+                treeClusters.Add(new Vector2Int(rng.Next(2, p.Width - 2), rng.Next(2, halfHeight)));
             }
 
-            float treeOffsetX = Random.Range(-10000f, 10000f);
-            float treeOffsetY = Random.Range(-10000f, 10000f);
-
-            int centerQ = _width / 2;
-            int centerR = _height / 2;
-            int safeCenterRadius = Mathf.RoundToInt(_width * 0.25f);
-
-            int batchSize = 15;
-            int count = 0;
+            int centerQ = p.Width / 2;
+            int centerR = p.Height / 2;
+            int safeCenterRadius = Mathf.RoundToInt(Mathf.Min(p.Width, p.Height) * 0.25f);
 
             for (int r = 1; r < halfHeight; r++)
             {
-                for (int q = 1; q < _width - 1; q++)
+                for (int q = 1; q < p.Width - 1; q++)
                 {
-                    Vector2Int coord = new Vector2Int(q, r);
-                    if (_spawnedObstacles.ContainsKey(coord)) continue;
+                    if (grid[q, r].ObsType != ObstacleType.None) continue; // Already occupied (e.g. border)
 
-                    if (_gridService.GetDistance(q, r, keep1.x, keep1.y) <= _config.PoiSpotRadius ||
-                        _gridService.GetDistance(q, r, keep2.x, keep2.y) <= _config.PoiSpotRadius)
+                    if (GetDistance(q, r, poi1.x, poi1.y) <= p.PoiSpotRadius ||
+                        GetDistance(q, r, poi2.x, poi2.y) <= p.PoiSpotRadius)
                         continue;
 
-                    if (_gridService.GetDistance(q, r, keep1.x, keep1.y) <= _config.SafeZoneRadius ||
-                        _gridService.GetDistance(q, r, keep2.x, keep2.y) <= _config.SafeZoneRadius)
+                    if (GetDistance(q, r, poi1.x, poi1.y) <= p.SafeZoneRadius ||
+                        GetDistance(q, r, poi2.x, poi2.y) <= p.SafeZoneRadius)
                         continue;
 
-                    GameObject prefabToSpawn = null;
                     bool canSpawnTrees = hasTrees;
                     bool forceMountain = false;
 
-                    if (_config.Archetype == MapArchetype.ChokePoint)
+                    if (p.Archetype == MapArchetype.ChokePoint)
                     {
-                        if (Mathf.Abs(q - centerQ) <= 1)
-                        {
-                            if (Mathf.Abs(r - centerR) > 2)
-                            {
-                                forceMountain = true;
-                            }
-                        }
+                        if (Mathf.Abs(q - centerQ) <= 1 && Mathf.Abs(r - centerR) > 2)
+                            forceMountain = true;
                     }
-                    else if (_config.Archetype == MapArchetype.Divided)
+                    else if (p.Archetype == MapArchetype.Divided)
                     {
-                        if (q == centerQ)
-                        {
-                            if (r != centerR && r != centerR - 3 && r != centerR + 3)
-                            {
-                                forceMountain = true;
-                            }
-                        }
+                        if (q == centerQ && r != centerR && r != centerR - 3 && r != centerR + 3)
+                            forceMountain = true;
                     }
 
-                    if (forceMountain && _config.MountainPrefabs != null && _config.MountainPrefabs.Count > 0)
+                    if (forceMountain && p.MountainPrefabsCount > 0)
                     {
-                        prefabToSpawn = _config.MountainPrefabs[Random.Range(0, _config.MountainPrefabs.Count)];
-                        SpawnObstacle(q, r, prefabToSpawn, false);
-                        ApplySymmetry(q, r, prefabToSpawn, (sq, sr, p) => SpawnObstacle(sq, sr, p, false));
-                        
-                        count++;
-                        if (count >= batchSize)
+                        int prefabIdx = rng.Next(0, p.MountainPrefabsCount);
+                        ApplySymmetryToGrid(grid, p, rng, q, r, d => 
                         {
-                            count = 0;
-                            await UniTask.Yield();
-                        }
+                            d.ObsType = ObstacleType.Mountain;
+                            d.ObsPrefabIndex = prefabIdx;
+                        });
                         continue;
                     }
 
-                    if (_config.Archetype == MapArchetype.Standard && _gridService.GetDistance(q, r, centerQ, centerR) <= safeCenterRadius)
+                    if (p.Archetype == MapArchetype.Standard && GetDistance(q, r, centerQ, centerR) <= safeCenterRadius)
                     {
                         canSpawnTrees = false;
                     }
@@ -366,13 +334,13 @@ namespace SteelSurge.LevelEditor.Services
                     {
                         foreach (var cluster in treeClusters)
                         {
-                            int dist = _gridService.GetDistance(q, r, cluster.x, cluster.y);
-                            int clusterRadius = Mathf.RoundToInt((1f - _config.TreeNoiseThreshold) * 10f);
+                            int dist = GetDistance(q, r, cluster.x, cluster.y);
+                            int clusterRadius = Mathf.RoundToInt((1f - p.TreeNoiseThreshold) * 10f);
                             
                             if (dist <= clusterRadius)
                             {
-                                float spawnChance = _config.TreeClusterDensity * (1f - (float)dist / (clusterRadius + 1));
-                                if (Random.value < spawnChance)
+                                float spawnChance = p.TreeClusterDensity * (1f - (float)dist / (clusterRadius + 1));
+                                if (rng.NextDouble() < spawnChance)
                                 {
                                     inTreeCluster = true;
                                     break;
@@ -383,24 +351,146 @@ namespace SteelSurge.LevelEditor.Services
                     
                     if (inTreeCluster)
                     {
-                        prefabToSpawn = _config.TreePrefabs[Random.Range(0, _config.TreePrefabs.Count)];
+                        int prefabIdx = rng.Next(0, p.TreePrefabsCount);
+                        ApplySymmetryToGrid(grid, p, rng, q, r, d => 
+                        {
+                            d.ObsType = ObstacleType.Tree;
+                            d.ObsPrefabIndex = prefabIdx;
+                            d.IsTreeCluster = true;
+                        });
                     }
-                    else if (hasRocks && Random.value < _config.RockDensity)
+                    else if (hasRocks && rng.NextDouble() < p.RockDensity)
                     {
-                        prefabToSpawn = _config.RockPrefabs[Random.Range(0, _config.RockPrefabs.Count)];
+                        int prefabIdx = rng.Next(0, p.RockPrefabsCount);
+                        ApplySymmetryToGrid(grid, p, rng, q, r, d => 
+                        {
+                            d.ObsType = ObstacleType.Rock;
+                            d.ObsPrefabIndex = prefabIdx;
+                        });
+                    }
+                }
+            }
+
+            return (grid, poi1, poi2);
+        }
+
+        private void MarkPoiSpot(HexData[,] grid, GenerationParams p, int centerQ, int centerR)
+        {
+            for (int r = 0; r < p.Height; r++)
+            {
+                for (int q = 0; q < p.Width; q++)
+                {
+                    if (GetDistance(q, r, centerQ, centerR) <= p.PoiSpotRadius)
+                    {
+                        grid[q, r].IsPoi = true;
+                    }
+                }
+            }
+        }
+
+        private void ApplySymmetryToGrid(HexData[,] grid, GenerationParams p, System.Random rng, int q, int r, System.Action<HexData> action)
+        {
+            action(grid[q, r]);
+
+            if (p.Symmetry == SymmetryType.None) return;
+            if (p.SymmetryChaos > 0f && rng.NextDouble() < p.SymmetryChaos) return;
+
+            Vector2Int symCoord = GetSymmetricCoordinate(q, r, p.Width, p.Height, p.Symmetry);
+            if (symCoord.x != q || symCoord.y != r)
+            {
+                action(grid[symCoord.x, symCoord.y]);
+            }
+        }
+
+        private float GetFractalNoise(float x, float y, GenerationParams p)
+        {
+            float amplitude = 1f;
+            float frequency = 1f;
+            float noiseHeight = 0f;
+            float maxAmplitude = 0f;
+
+            for (int i = 0; i < p.NoiseOctaves; i++)
+            {
+                float sampleX = x * p.NoiseScale * frequency;
+                float sampleY = y * p.NoiseScale * frequency;
+                noiseHeight += Mathf.PerlinNoise(sampleX, sampleY) * amplitude;
+                maxAmplitude += amplitude;
+                amplitude *= p.NoisePersistence;
+                frequency *= p.NoiseLacunarity;
+            }
+
+            return noiseHeight / maxAmplitude;
+        }
+
+        private Vector2Int GetSymmetricCoordinate(int q, int r, int width, int height, SymmetryType symmetry)
+        {
+            switch (symmetry)
+            {
+                case SymmetryType.Point: return new Vector2Int(width - 1 - q, height - 1 - r);
+                case SymmetryType.Horizontal: return new Vector2Int(q, height - 1 - r);
+                case SymmetryType.Vertical: return new Vector2Int(width - 1 - q, r);
+                default: return new Vector2Int(q, r);
+            }
+        }
+
+        private int GetDistance(int q1, int r1, int q2, int r2)
+        {
+            int q1Cube = q1 - (r1 - (r1 & 1)) / 2;
+            int q2Cube = q2 - (r2 - (r2 & 1)) / 2;
+            int s1 = -q1Cube - r1;
+            int s2 = -q2Cube - r2;
+            return Mathf.Max(Mathf.Abs(q1Cube - q2Cube), Mathf.Abs(r1 - r2), Mathf.Abs(s1 - s2));
+        }
+
+        private async UniTask InstantiateMapAsync(HexData[,] grid)
+        {
+            int batchSize = 50;
+            int count = 0;
+
+            UnityEngine.Random.InitState(_seed);
+
+            for (int r = 0; r < _height; r++)
+            {
+                for (int q = 0; q < _width; q++)
+                {
+                    HexData data = grid[q, r];
+
+                    // 1. Spawn Base Hex
+                    Material mat = _config.BaseMaterial;
+                    if (data.IsPoi && _config.PoiSpotMaterial != null) 
+                        mat = _config.PoiSpotMaterial;
+                    else if (data.BiomeIndex >= 0 && data.BiomeIndex < _config.BiomeLayers.Count) 
+                        mat = _config.BiomeLayers[data.BiomeIndex].Material;
+
+                    SpawnHex(q, r, _config.HexGrassPrefab, mat);
+
+                    // 2. Spawn Obstacle
+                    if (data.ObsType != ObstacleType.None)
+                    {
+                        GameObject prefab = null;
+                        bool isTree = false;
+
+                        if (data.ObsType == ObstacleType.Mountain && data.ObsPrefabIndex < _config.MountainPrefabs.Count)
+                            prefab = _config.MountainPrefabs[data.ObsPrefabIndex];
+                        else if (data.ObsType == ObstacleType.Rock && data.ObsPrefabIndex < _config.RockPrefabs.Count)
+                            prefab = _config.RockPrefabs[data.ObsPrefabIndex];
+                        else if (data.ObsType == ObstacleType.Tree && data.ObsPrefabIndex < _config.TreePrefabs.Count)
+                        {
+                            prefab = _config.TreePrefabs[data.ObsPrefabIndex];
+                            isTree = true;
+                        }
+
+                        if (prefab != null)
+                        {
+                            SpawnObstacle(q, r, prefab, isTree);
+                        }
                     }
 
-                    if (prefabToSpawn != null)
+                    count++;
+                    if (count >= batchSize)
                     {
-                        SpawnObstacle(q, r, prefabToSpawn, inTreeCluster);
-                        ApplySymmetry(q, r, prefabToSpawn, (sq, sr, p) => SpawnObstacle(sq, sr, p, inTreeCluster));
-                        
-                        count++;
-                        if (count >= batchSize)
-                        {
-                            count = 0;
-                            await UniTask.Yield();
-                        }
+                        count = 0;
+                        await UniTask.Yield();
                     }
                 }
             }
@@ -432,19 +522,6 @@ namespace SteelSurge.LevelEditor.Services
             _spawnedHexes[new Vector2Int(q, r)] = instance;
         }
 
-        private void ApplyMaterialToHex(int q, int r, Material material)
-        {
-            Vector2Int coord = new Vector2Int(q, r);
-            if (_spawnedHexes.TryGetValue(coord, out GameObject hex))
-            {
-                var renderer = hex.GetComponentInChildren<MeshRenderer>();
-                if (renderer != null)
-                {
-                    renderer.sharedMaterial = material;
-                }
-            }
-        }
-
         private void SpawnObstacle(int q, int r, GameObject prefab, bool isTree = false)
         {
             if (prefab == null) return;
@@ -455,50 +532,56 @@ namespace SteelSurge.LevelEditor.Services
             
             if (isTree && _config.TreesPerHex > 1)
             {
-                // Spawn multiple trees per hex with random offsets
                 GameObject container = new GameObject($"Trees_{q}_{r}");
                 container.transform.SetParent(_parent);
                 container.transform.position = basePos;
 
                 for (int i = 0; i < _config.TreesPerHex; i++)
                 {
-                    Vector2 randomCircle = Random.insideUnitCircle * _config.TreeSpreadRadius;
+                    Vector2 randomCircle = UnityEngine.Random.insideUnitCircle * _config.TreeSpreadRadius;
                     Vector3 offsetPos = basePos + new Vector3(randomCircle.x, 0, randomCircle.y);
                     
 #if UNITY_EDITOR
                     GameObject instance = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefab, container.transform);
                     instance.transform.position = offsetPos;
-                    instance.transform.rotation = Quaternion.Euler(0, Random.Range(0f, 360f), 0);
+                    instance.transform.rotation = Quaternion.Euler(0, UnityEngine.Random.Range(0f, 360f), 0);
 #else
-                    GameObject instance = Object.Instantiate(prefab, offsetPos, Quaternion.Euler(0, Random.Range(0f, 360f), 0), container.transform);
+                    GameObject instance = Object.Instantiate(prefab, offsetPos, Quaternion.Euler(0, UnityEngine.Random.Range(0f, 360f), 0), container.transform);
 #endif
                 }
                 _spawnedObstacles[coord] = container;
             }
             else
             {
-                // Standard single spawn
 #if UNITY_EDITOR
                 GameObject instance = (GameObject)UnityEditor.PrefabUtility.InstantiatePrefab(prefab, _parent);
                 instance.transform.position = basePos;
-                instance.transform.rotation = isTree ? Quaternion.Euler(0, Random.Range(0f, 360f), 0) : Quaternion.identity;
+                instance.transform.rotation = isTree ? Quaternion.Euler(0, UnityEngine.Random.Range(0f, 360f), 0) : Quaternion.identity;
 #else
-                GameObject instance = Object.Instantiate(prefab, basePos, isTree ? Quaternion.Euler(0, Random.Range(0f, 360f), 0) : Quaternion.identity, _parent);
+                GameObject instance = Object.Instantiate(prefab, basePos, isTree ? Quaternion.Euler(0, UnityEngine.Random.Range(0f, 360f), 0) : Quaternion.identity, _parent);
 #endif
                 instance.name = $"{prefab.name}_{q}_{r}";
                 _spawnedObstacles[coord] = instance;
             }
         }
 
-        private void ApplySymmetry<T>(int q, int r, T data, System.Action<int, int, T> action)
+        public void Clear()
         {
-            if (_config.Symmetry == SymmetryType.None) return;
-            if (_config.SymmetryChaos > 0f && Random.value < _config.SymmetryChaos) return; // Chaos! Break symmetry here
-
-            Vector2Int symCoord = _gridService.GetSymmetricCoordinate(q, r, _width, _height, _config.Symmetry);
-            if (symCoord.x != q || symCoord.y != r)
+            foreach (var hex in _spawnedHexes.Values)
             {
-                action(symCoord.x, symCoord.y, data);
+                if (hex != null) Object.DestroyImmediate(hex);
+            }
+            _spawnedHexes.Clear();
+
+            foreach (var obs in _spawnedObstacles.Values)
+            {
+                if (obs != null) Object.DestroyImmediate(obs);
+            }
+            _spawnedObstacles.Clear();
+
+            for (int i = _parent.childCount - 1; i >= 0; i--)
+            {
+                Object.DestroyImmediate(_parent.GetChild(i).gameObject);
             }
         }
     }
