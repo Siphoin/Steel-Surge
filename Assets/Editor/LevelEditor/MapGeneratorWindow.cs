@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using Sirenix.OdinInspector;
 using Sirenix.OdinInspector.Editor;
+using Cysharp.Threading.Tasks;
 using SteelSurge.LevelEditor.Configs;
 using SteelSurge.LevelEditor.Services;
 
@@ -420,11 +421,13 @@ namespace SteelSurge.LevelEditor.Editor
 
             // Deselect everything BEFORE creating a new scene to prevent MissingReferenceException
             Selection.objects = new UnityEngine.Object[0];
+            
+            // Use EditorApplication.delayCall to ensure we are completely out of the current UI event loop
+            // before destroying the scene and creating a new one. This prevents UniTask/Editor NREs.
             EditorApplication.delayCall += () =>
             {
                 string scenePath = $"Assets/Scenes/Arenas/{_arenaName}.unity";
                 
-                // Create new scene
                 var newScene = UnityEditor.SceneManagement.EditorSceneManager.NewScene(UnityEditor.SceneManagement.NewSceneSetup.EmptyScene, UnityEditor.SceneManagement.NewSceneMode.Single);
                 newScene.name = _arenaName;
 
@@ -434,11 +437,8 @@ namespace SteelSurge.LevelEditor.Editor
                     var camSetup = (GameObject)PrefabUtility.InstantiatePrefab(_config.CameraSetupPrefab);
                     camSetup.name = "CameraSetup";
                     
-                    // Adjust camera position to center on the generated map
                     float mapWidthWorld = actualWidth * _config.HexSize * 2f;
                     float mapHeightWorld = actualHeight * _config.HexSize * 1.732051f;
-                    
-                    // Center of the map
                     Vector3 mapCenter = new Vector3(mapWidthWorld / 2f, 0, mapHeightWorld / 2f);
                     
                     if (_orientation == MapOrientation.Horizontal)
@@ -448,19 +448,16 @@ namespace SteelSurge.LevelEditor.Editor
                     }
                     else
                     {
-                        // For vertical maps, rotate camera 90 degrees to look along Z axis
                         camSetup.transform.position = mapCenter + new Vector3(0f, 70f, -60f);
                         camSetup.transform.rotation = Quaternion.Euler(50.1f, 0f, 0f);
                     }
                     
-                    // Adjust orthographic size if it's an orthographic camera
                     var cam = camSetup.GetComponentInChildren<Camera>();
                     if (cam != null && cam.orthographic)
                     {
                         cam.orthographicSize = _cameraOrthoSize;
                     }
                     
-                    // Also adjust Cinemachine camera if present using reflection to avoid assembly dependency issues
                     var vcam = camSetup.GetComponentInChildren(System.Type.GetType("Unity.Cinemachine.CinemachineCamera, Unity.Cinemachine"));
                     if (vcam != null)
                     {
@@ -479,7 +476,6 @@ namespace SteelSurge.LevelEditor.Editor
                 }
                 else
                 {
-                    // Fallback if no camera prefab
                     var cam = new GameObject("Main Camera");
                     cam.AddComponent<Camera>();
                     cam.tag = "MainCamera";
@@ -490,27 +486,31 @@ namespace SteelSurge.LevelEditor.Editor
                     light.transform.rotation = Quaternion.Euler(50, -30, 0);
                 }
 
-                // Setup MapRoot
                 GameObject mapRoot = new GameObject("MapRoot");
-                
                 _generator = new MapGenerator(_config, actualWidth, actualHeight, mapRoot.transform, _seed);
-                _generator.Generate();
-
-                if (_skybox != null)
-                {
-                    RenderSettings.skybox = _skybox;
-                }
                 
-                // Save scene
-                if (!System.IO.Directory.Exists("Assets/Scenes/Arenas"))
-                {
-                    System.IO.Directory.CreateDirectory("Assets/Scenes/Arenas");
-                }
-                
-                UnityEditor.SceneManagement.EditorSceneManager.SaveScene(newScene, scenePath);
-                
-                Debug.Log($"Map generated and saved to {scenePath} with seed: {_seed}");
+                // Start the async generation process
+                GenerateAsyncInternal(newScene, scenePath).Forget();
             };
+        }
+
+        private async UniTaskVoid GenerateAsyncInternal(UnityEngine.SceneManagement.Scene newScene, string scenePath)
+        {
+            await _generator.GenerateAsync();
+
+            if (_skybox != null)
+            {
+                RenderSettings.skybox = _skybox;
+            }
+            
+            if (!System.IO.Directory.Exists("Assets/Scenes/Arenas"))
+            {
+                System.IO.Directory.CreateDirectory("Assets/Scenes/Arenas");
+            }
+            
+            UnityEditor.SceneManagement.EditorSceneManager.SaveScene(newScene, scenePath);
+            
+            Debug.Log($"Map generated and saved to {scenePath} with seed: {_seed}");
         }
 
         [Button(ButtonSizes.Medium, Name = "Clear Map"), GUIColor(0.8f, 0.2f, 0.2f)]

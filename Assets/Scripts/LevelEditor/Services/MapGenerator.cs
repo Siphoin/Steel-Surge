@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using Cysharp.Threading.Tasks;
 using SteelSurge.LevelEditor.Configs;
 
 namespace SteelSurge.LevelEditor.Services
@@ -30,18 +31,18 @@ namespace SteelSurge.LevelEditor.Services
             _gridService = new HexGridService(config.HexSize);
         }
 
-        public void Generate()
+        public async UniTask GenerateAsync()
         {
             Clear();
             Random.InitState(_seed);
 
             CalculatePoiPositions();
 
-            GenerateBaseGrid();
-            GenerateBiomes();
-            GeneratePoiSpots();
-            GenerateBorders();
-            GenerateObstacles();
+            await GenerateBaseGridAsync();
+            await GenerateBiomesAsync();
+            await GeneratePoiSpotsAsync();
+            await GenerateBordersAsync();
+            await GenerateObstaclesAsync();
         }
 
         public void Clear()
@@ -108,13 +109,23 @@ namespace SteelSurge.LevelEditor.Services
             }
         }
 
-        private void GenerateBaseGrid()
+        private async UniTask GenerateBaseGridAsync()
         {
+            int batchSize = 50;
+            int count = 0;
+
             for (int r = 0; r < _height; r++)
             {
                 for (int q = 0; q < _width; q++)
                 {
                     SpawnHex(q, r, _config.HexGrassPrefab, _config.BaseMaterial);
+                    
+                    count++;
+                    if (count >= batchSize)
+                    {
+                        count = 0;
+                        await UniTask.Yield();
+                    }
                 }
             }
         }
@@ -139,17 +150,18 @@ namespace SteelSurge.LevelEditor.Services
             return noiseHeight / maxAmplitude;
         }
 
-        private void GenerateBiomes()
+        private async UniTask GenerateBiomesAsync()
         {
             if (_config.BiomeLayers == null || _config.BiomeLayers.Count == 0) return;
 
-            // Sort layers by threshold descending so highest threshold is checked first
             var sortedLayers = _config.BiomeLayers.OrderByDescending(l => l.Threshold).ToList();
 
             float offsetX = Random.Range(-10000f, 10000f);
             float offsetY = Random.Range(-10000f, 10000f);
 
             int halfHeight = _config.Symmetry == SymmetryType.None ? _height : _height / 2;
+            int batchSize = 50;
+            int count = 0;
 
             for (int r = 0; r < halfHeight; r++)
             {
@@ -172,16 +184,25 @@ namespace SteelSurge.LevelEditor.Services
                         ApplyMaterialToHex(q, r, materialToApply);
                         ApplySymmetry(q, r, materialToApply, ApplyMaterialToHex);
                     }
+
+                    count++;
+                    if (count >= batchSize)
+                    {
+                        count = 0;
+                        await UniTask.Yield();
+                    }
                 }
             }
         }
 
-        private void GeneratePoiSpots()
+        private async UniTask GeneratePoiSpotsAsync()
         {
             if (_config.PoiSpotMaterial == null) return;
 
             ApplyPoiSpot(Poi1.x, Poi1.y);
+            await UniTask.Yield();
             ApplyPoiSpot(Poi2.x, Poi2.y);
+            await UniTask.Yield();
         }
 
         private void ApplyPoiSpot(int centerQ, int centerR)
@@ -198,13 +219,16 @@ namespace SteelSurge.LevelEditor.Services
             }
         }
 
-        private void GenerateBorders()
+        private async UniTask GenerateBordersAsync()
         {
             if (_config.MountainPrefabs == null || _config.MountainPrefabs.Count == 0) return;
 
             float borderOffsetX = Random.Range(-10000f, 10000f);
             float borderOffsetY = Random.Range(-10000f, 10000f);
             int halfHeight = _config.Symmetry == SymmetryType.None ? _height : _height / 2;
+            
+            int batchSize = 20;
+            int count = 0;
 
             for (int r = 0; r < halfHeight; r++)
             {
@@ -223,7 +247,6 @@ namespace SteelSurge.LevelEditor.Services
                     else if (distToEdge <= _config.MaxBorderDepth)
                     {
                         float noise = Mathf.PerlinNoise((q + borderOffsetX) * _config.BorderNoiseScale, (r + borderOffsetY) * _config.BorderNoiseScale);
-                        // The further from the edge, the harder it is to be a mountain
                         float adjustedThreshold = _config.BorderNoiseThreshold + (distToEdge * 0.15f);
                         if (noise > adjustedThreshold)
                         {
@@ -236,12 +259,19 @@ namespace SteelSurge.LevelEditor.Services
                         GameObject randomMountain = _config.MountainPrefabs[Random.Range(0, _config.MountainPrefabs.Count)];
                         SpawnObstacle(q, r, randomMountain, false);
                         ApplySymmetry(q, r, randomMountain, (sq, sr, prefab) => SpawnObstacle(sq, sr, prefab, false));
+                        
+                        count++;
+                        if (count >= batchSize)
+                        {
+                            count = 0;
+                            await UniTask.Yield();
+                        }
                     }
                 }
             }
         }
 
-        private void GenerateObstacles()
+        private async UniTask GenerateObstaclesAsync()
         {
             int halfHeight = _config.Symmetry == SymmetryType.None ? _height : _height / 2;
 
@@ -251,7 +281,6 @@ namespace SteelSurge.LevelEditor.Services
             bool hasRocks = _config.RockPrefabs != null && _config.RockPrefabs.Count > 0;
             bool hasTrees = _config.TreePrefabs != null && _config.TreePrefabs.Count > 0;
 
-            // Generate cluster centers for trees (Warcraft 3 style)
             int numClusters = Mathf.RoundToInt((_width * _height) * _config.TreeDensity * 0.05f);
             List<Vector2Int> treeClusters = new List<Vector2Int>();
             
@@ -267,7 +296,10 @@ namespace SteelSurge.LevelEditor.Services
 
             int centerQ = _width / 2;
             int centerR = _height / 2;
-            int safeCenterRadius = Mathf.RoundToInt(_width * 0.25f); // Keep the center 25% of the map open
+            int safeCenterRadius = Mathf.RoundToInt(_width * 0.25f);
+
+            int batchSize = 15;
+            int count = 0;
 
             for (int r = 1; r < halfHeight; r++)
             {
@@ -276,12 +308,10 @@ namespace SteelSurge.LevelEditor.Services
                     Vector2Int coord = new Vector2Int(q, r);
                     if (_spawnedObstacles.ContainsKey(coord)) continue;
 
-                    // Strict check: Do not spawn ANY obstacles inside the POI radius
                     if (_gridService.GetDistance(q, r, keep1.x, keep1.y) <= _config.PoiSpotRadius ||
                         _gridService.GetDistance(q, r, keep2.x, keep2.y) <= _config.PoiSpotRadius)
                         continue;
 
-                    // Also check SafeZoneRadius just in case it's larger than PoiSpotRadius
                     if (_gridService.GetDistance(q, r, keep1.x, keep1.y) <= _config.SafeZoneRadius ||
                         _gridService.GetDistance(q, r, keep2.x, keep2.y) <= _config.SafeZoneRadius)
                         continue;
@@ -290,13 +320,11 @@ namespace SteelSurge.LevelEditor.Services
                     bool canSpawnTrees = hasTrees;
                     bool forceMountain = false;
 
-                    // Apply Archetype logic
                     if (_config.Archetype == MapArchetype.ChokePoint)
                     {
-                        // Create a mountain wall in the middle with a gap
                         if (Mathf.Abs(q - centerQ) <= 1)
                         {
-                            if (Mathf.Abs(r - centerR) > 2) // Gap size
+                            if (Mathf.Abs(r - centerR) > 2)
                             {
                                 forceMountain = true;
                             }
@@ -304,10 +332,9 @@ namespace SteelSurge.LevelEditor.Services
                     }
                     else if (_config.Archetype == MapArchetype.Divided)
                     {
-                        // Create a river/void (represented by mountains for now) across the map
                         if (q == centerQ)
                         {
-                            if (r != centerR && r != centerR - 3 && r != centerR + 3) // Bridges
+                            if (r != centerR && r != centerR - 3 && r != centerR + 3)
                             {
                                 forceMountain = true;
                             }
@@ -319,28 +346,31 @@ namespace SteelSurge.LevelEditor.Services
                         prefabToSpawn = _config.MountainPrefabs[Random.Range(0, _config.MountainPrefabs.Count)];
                         SpawnObstacle(q, r, prefabToSpawn, false);
                         ApplySymmetry(q, r, prefabToSpawn, (sq, sr, p) => SpawnObstacle(sq, sr, p, false));
+                        
+                        count++;
+                        if (count >= batchSize)
+                        {
+                            count = 0;
+                            await UniTask.Yield();
+                        }
                         continue;
                     }
 
-                    // Keep the center of the map open (like ArenaForest) for Standard archetype
                     if (_config.Archetype == MapArchetype.Standard && _gridService.GetDistance(q, r, centerQ, centerR) <= safeCenterRadius)
                     {
-                        canSpawnTrees = false; // No trees in the center
+                        canSpawnTrees = false;
                     }
 
-                    // Check if this hex is near any tree cluster center
                     bool inTreeCluster = false;
                     if (canSpawnTrees)
                     {
                         foreach (var cluster in treeClusters)
                         {
                             int dist = _gridService.GetDistance(q, r, cluster.x, cluster.y);
-                            // Radius of cluster based on noise threshold (inverted for size)
                             int clusterRadius = Mathf.RoundToInt((1f - _config.TreeNoiseThreshold) * 10f);
                             
                             if (dist <= clusterRadius)
                             {
-                                // The closer to center, the higher the chance to spawn
                                 float spawnChance = _config.TreeClusterDensity * (1f - (float)dist / (clusterRadius + 1));
                                 if (Random.value < spawnChance)
                                 {
@@ -357,7 +387,6 @@ namespace SteelSurge.LevelEditor.Services
                     }
                     else if (hasRocks && Random.value < _config.RockDensity)
                     {
-                        // Rocks are still random
                         prefabToSpawn = _config.RockPrefabs[Random.Range(0, _config.RockPrefabs.Count)];
                     }
 
@@ -365,6 +394,13 @@ namespace SteelSurge.LevelEditor.Services
                     {
                         SpawnObstacle(q, r, prefabToSpawn, inTreeCluster);
                         ApplySymmetry(q, r, prefabToSpawn, (sq, sr, p) => SpawnObstacle(sq, sr, p, inTreeCluster));
+                        
+                        count++;
+                        if (count >= batchSize)
+                        {
+                            count = 0;
+                            await UniTask.Yield();
+                        }
                     }
                 }
             }
