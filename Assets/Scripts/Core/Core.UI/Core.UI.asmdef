@@ -1,0 +1,21 @@
+{
+    "name": "Core.UI",
+    "rootNamespace": "SteelSurge.Core.UI",
+    "references": [
+        "GUID:148ef1b1a6184c64c9b89822e33f01d9",
+        "GUID:c907cc9e087d5d641994e0e16914cb61",
+        "GUID:0d91e79bc0b64e64587f6af1ac7909aa",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:71623cbdbc140fe42a7cfda1cb240809"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

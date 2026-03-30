@@ -1,0 +1,19 @@
+{
+    "name": "Core",
+    "rootNamespace": "SteelSurge.Core",
+    "references": [
+        "GUID:71623cbdbc140fe42a7cfda1cb240809",
+        "GUID:c907cc9e087d5d641994e0e16914cb61",
+        "GUID:0d8beb7f090555447a6cf5ce9e54dbb4",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

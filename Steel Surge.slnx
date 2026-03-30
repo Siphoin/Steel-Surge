@@ -27,6 +27,7 @@
   <Project Path="Main.csproj" />
   <Project Path="UniTask.TextMeshPro.csproj" />
   <Project Path="ExLibEditor.csproj" />
+  <Project Path="Core.Network.csproj" />
   <Project Path="InputSystem.csproj" />
   <Project Path="LevelEditor.Editor.csproj" />
   <Project Path="UniTask.Editor.csproj" />
