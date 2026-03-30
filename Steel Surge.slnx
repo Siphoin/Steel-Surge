@@ -18,6 +18,7 @@
   <Project Path="AITree.csproj" />
   <Project Path="MessagePack.csproj" />
   <Project Path="Network.csproj" />
+  <Project Path="Core.Network.csproj" />
   <Project Path="UniTask.Addressables.csproj" />
   <Project Path="AITree.EQS.csproj" />
   <Project Path="LevelEditor.csproj" />
@@ -32,10 +33,10 @@
   <Project Path="UniTask.Editor.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.UnityMathematics.csproj" />
   <Project Path="Apex.Demo.csproj" />
-  <Project Path="Core.Network.csproj" />
   <Project Path="Boxophobic.SkyboxCubemapExtended.Editor.csproj" />
   <Project Path="IngameDebugConsole.Editor.csproj" />
   <Project Path="UniTask.DOTween.csproj" />
+  <Project Path="Core.csproj" />
   <Project Path="Core.UI.csproj" />
   <Project Path="Extensions.csproj" />
 </Solution>

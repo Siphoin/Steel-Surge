@@ -1,21 +1,22 @@
 using Unity.Netcode;
 using UnityEngine;
-
+using System;
 namespace SteelSurge.Core.Network.HealthSystem.Models
 {
+    [Serializable]
     public struct Health : INetworkSerializable
     {
         private float CurrentValue;
         public float MaxValue;
-        private float v;
-
-        public Health(float v) : this()
-        {
-            this.v = v;
-        }
 
         public bool IsDead => CurrentValue <= 0;
         public bool IsAlive => CurrentValue > 0;
+
+        public Health(float health)
+        {
+            CurrentValue = health;
+            MaxValue = health;
+        }
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
             serializer.SerializeValue(ref CurrentValue);

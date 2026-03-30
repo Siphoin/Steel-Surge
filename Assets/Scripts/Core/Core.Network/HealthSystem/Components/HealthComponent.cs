@@ -6,7 +6,7 @@ using SteelSurge.Core.Network.HealthSystem.Models;
 
 namespace SteelSurge.Core.Network.HealthSystem.Components
 {
-    public class HealthComponent : SteelSurge.Network.Components.NetworkObject
+    public class HealthComponent : SteelSurge.Core.Network.Components.NetworkObject
     {
         [SerializeField] private float _maxHealth = 100f;
 
