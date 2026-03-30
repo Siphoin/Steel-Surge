@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-namespace SteelSurge.Core.Network
+namespace SteelSurge.Core.Network.HealthSystem.Models
 {
     public struct Health : INetworkSerializable
     {

@@ -2,8 +2,9 @@
 using UnityEngine;
 using UniRx;
 using System;
+using SteelSurge.Core.Network.HealthSystem.Models;
 
-namespace SteelSurge.Core.Network.Components
+namespace SteelSurge.Core.Network.HealthSystem.Components
 {
     public class HealthComponent : SteelSurge.Network.Components.NetworkObject
     {

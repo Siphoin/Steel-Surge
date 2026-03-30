@@ -27,14 +27,15 @@
   <Project Path="Main.csproj" />
   <Project Path="UniTask.TextMeshPro.csproj" />
   <Project Path="ExLibEditor.csproj" />
-  <Project Path="Core.Network.csproj" />
   <Project Path="InputSystem.csproj" />
   <Project Path="LevelEditor.Editor.csproj" />
   <Project Path="UniTask.Editor.csproj" />
   <Project Path="Sirenix.OdinInspector.Modules.UnityMathematics.csproj" />
   <Project Path="Apex.Demo.csproj" />
+  <Project Path="Core.Network.csproj" />
   <Project Path="Boxophobic.SkyboxCubemapExtended.Editor.csproj" />
   <Project Path="IngameDebugConsole.Editor.csproj" />
   <Project Path="UniTask.DOTween.csproj" />
+  <Project Path="Core.UI.csproj" />
   <Project Path="Extensions.csproj" />
 </Solution>
