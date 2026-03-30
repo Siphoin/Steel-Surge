@@ -1,0 +1,26 @@
+{
+    "name": "TestsEditMode",
+    "rootNamespace": "SteelSurge.Tests.EditMode",
+    "references": [
+        "Core",
+        "Core.Network",
+        "Core.UI",
+        "UI",
+        "Network",
+        "Unity.InputSystem.TestFramework",
+        "Zenject",
+        "DOTween.Modules",
+        "UniTask",
+        "Main",
+        "Unity.TestFramework"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

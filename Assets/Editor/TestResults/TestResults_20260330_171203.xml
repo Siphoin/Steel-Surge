@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="10" result="Failed(Child)" total="10" passed="4" failed="6" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0,1219455">
+  <test-suite type="TestSuite" id="1043" name="Steel Surge" fullname="Steel Surge" runstate="Runnable" testcasecount="10" result="Failed" site="Child" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.121946" total="10" passed="4" failed="6" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="PlayMode" />
+    </properties>
+    <failure>
+      <message><![CDATA[One or more child tests had errors]]></message>
+    </failure>
+    <test-suite type="Assembly" id="1034" name="TestsEditMode.dll" fullname="E:/repos/Steel Surge/Library/ScriptAssemblies/TestsEditMode.dll" runstate="Runnable" testcasecount="10" result="Failed" site="Child" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.113474" total="10" passed="4" failed="6" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="12032" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="PlayMode" />
+        <property name="EditorOnly" value="False" />
+      </properties>
+      <failure>
+        <message><![CDATA[One or more child tests had errors]]></message>
+      </failure>
+      <test-suite type="TestSuite" id="1035" name="SteelSurge" fullname="SteelSurge" runstate="Runnable" testcasecount="10" result="Failed" site="Child" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.096419" total="10" passed="4" failed="6" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <failure>
+          <message><![CDATA[One or more child tests had errors]]></message>
+        </failure>
+        <test-suite type="TestSuite" id="1036" name="Tests" fullname="SteelSurge.Tests" runstate="Runnable" testcasecount="10" result="Failed" site="Child" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.080353" total="10" passed="4" failed="6" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <failure>
+            <message><![CDATA[One or more child tests had errors]]></message>
+          </failure>
+          <test-suite type="TestSuite" id="1037" name="EditMode" fullname="SteelSurge.Tests.EditMode" runstate="Runnable" testcasecount="10" result="Failed" site="Child" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.062544" total="10" passed="4" failed="6" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <failure>
+              <message><![CDATA[One or more child tests had errors]]></message>
+            </failure>
+            <test-suite type="TestSuite" id="1038" name="HealthSystem" fullname="SteelSurge.Tests.EditMode.HealthSystem" runstate="Runnable" testcasecount="10" result="Failed" site="Child" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.046527" total="10" passed="4" failed="6" inconclusive="0" skipped="0" asserts="0">
+              <properties />
+              <failure>
+                <message><![CDATA[One or more child tests had errors]]></message>
+              </failure>
+              <test-suite type="TestFixture" id="1023" name="HealthLogicTests" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" testcasecount="10" result="Failed" site="Child" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.029230" total="10" passed="4" failed="6" inconclusive="0" skipped="0" asserts="0">
+                <properties />
+                <failure>
+                  <message><![CDATA[One or more child tests had errors]]></message>
+                </failure>
+                <test-case id="1027" name="Heal_IncreasesHealthCorrectly" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.Heal_IncreasesHealthCorrectly" methodname="Heal_IncreasesHealthCorrectly" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" seed="1462911255" result="Failed" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.006781" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Expected: 80.0d +/- 0.0099999997764825821d
+  But was:  20.0d
+]]></message>
+                    <stack-trace><![CDATA[at SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.Heal_IncreasesHealthCorrectly () [0x0001a] in E:\repos\Steel Surge\Assets\Scripts\Tests\EditMode\HealthSystem\HealthComponentTests.cs:46
+]]></stack-trace>
+                  </failure>
+                </test-case>
+                <test-case id="1028" name="Heal_WhenHealExceedsMaxHealth_ClampsToMax" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.Heal_WhenHealExceedsMaxHealth_ClampsToMax" methodname="Heal_WhenHealExceedsMaxHealth_ClampsToMax" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" seed="1970944414" result="Failed" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.000431" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Expected: 100.0d +/- 0.0099999997764825821d
+  But was:  30.0d
+]]></message>
+                    <stack-trace><![CDATA[at SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.Heal_WhenHealExceedsMaxHealth_ClampsToMax () [0x0001a] in E:\repos\Steel Surge\Assets\Scripts\Tests\EditMode\HealthSystem\HealthComponentTests.cs:55
+]]></stack-trace>
+                  </failure>
+                </test-case>
+                <test-case id="1029" name="Heal_WithNegativeHeal_ClampsToZero" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.Heal_WithNegativeHeal_ClampsToZero" methodname="Heal_WithNegativeHeal_ClampsToZero" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" seed="521663681" result="Failed" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.000373" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Expected: 0.0d +/- 0.0099999997764825821d
+  But was:  50.0d
+]]></message>
+                    <stack-trace><![CDATA[at SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.Heal_WithNegativeHeal_ClampsToZero () [0x0001a] in E:\repos\Steel Surge\Assets\Scripts\Tests\EditMode\HealthSystem\HealthComponentTests.cs:64
+]]></stack-trace>
+                  </failure>
+                </test-case>
+                <test-case id="1030" name="IsAlive_WhenHealthAboveZero_ReturnsTrue" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.IsAlive_WhenHealthAboveZero_ReturnsTrue" methodname="IsAlive_WhenHealthAboveZero_ReturnsTrue" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" seed="866867591" result="Passed" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.000423" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1031" name="IsAlive_WhenHealthIsZero_ReturnsFalse" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.IsAlive_WhenHealthIsZero_ReturnsFalse" methodname="IsAlive_WhenHealthIsZero_ReturnsFalse" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" seed="521200227" result="Passed" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.000189" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1033" name="IsDead_WhenHealthAboveZero_ReturnsFalse" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.IsDead_WhenHealthAboveZero_ReturnsFalse" methodname="IsDead_WhenHealthAboveZero_ReturnsFalse" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" seed="387825125" result="Passed" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.000169" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1032" name="IsDead_WhenHealthIsZero_ReturnsTrue" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.IsDead_WhenHealthIsZero_ReturnsTrue" methodname="IsDead_WhenHealthIsZero_ReturnsTrue" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" seed="928167229" result="Passed" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.000162" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                </test-case>
+                <test-case id="1024" name="TakeDamage_ReducesHealthCorrectly" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.TakeDamage_ReducesHealthCorrectly" methodname="TakeDamage_ReducesHealthCorrectly" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" seed="1540555676" result="Failed" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.000401" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Expected: 70.0d +/- 0.0099999997764825821d
+  But was:  100.0d
+]]></message>
+                    <stack-trace><![CDATA[at SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.TakeDamage_ReducesHealthCorrectly () [0x0001a] in E:\repos\Steel Surge\Assets\Scripts\Tests\EditMode\HealthSystem\HealthComponentTests.cs:19
+]]></stack-trace>
+                  </failure>
+                </test-case>
+                <test-case id="1025" name="TakeDamage_WhenDamageExceedsHealth_SetsToZero" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.TakeDamage_WhenDamageExceedsHealth_SetsToZero" methodname="TakeDamage_WhenDamageExceedsHealth_SetsToZero" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" seed="1991761890" result="Failed" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.000340" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Expected: 0.0d +/- 0.0099999997764825821d
+  But was:  50.0d
+]]></message>
+                    <stack-trace><![CDATA[at SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.TakeDamage_WhenDamageExceedsHealth_SetsToZero () [0x0001a] in E:\repos\Steel Surge\Assets\Scripts\Tests\EditMode\HealthSystem\HealthComponentTests.cs:28
+]]></stack-trace>
+                  </failure>
+                </test-case>
+                <test-case id="1026" name="TakeDamage_WithNegativeDamage_ClampsToMaxHealth" fullname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.TakeDamage_WithNegativeDamage_ClampsToMaxHealth" methodname="TakeDamage_WithNegativeDamage_ClampsToMaxHealth" classname="SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests" runstate="Runnable" seed="2027971062" result="Failed" start-time="2026-03-30 12:11:52Z" end-time="2026-03-30 12:11:52Z" duration="0.000347" asserts="0">
+                  <properties>
+                    <property name="retryIteration" value="0" />
+                    <property name="repeatIteration" value="0" />
+                  </properties>
+                  <failure>
+                    <message><![CDATA[  Expected: 100.0d +/- 0.0099999997764825821d
+  But was:  80.0d
+]]></message>
+                    <stack-trace><![CDATA[at SteelSurge.Tests.EditMode.HealthSystem.HealthLogicTests.TakeDamage_WithNegativeDamage_ClampsToMaxHealth () [0x0001a] in E:\repos\Steel Surge\Assets\Scripts\Tests\EditMode\HealthSystem\HealthComponentTests.cs:37
+]]></stack-trace>
+                  </failure>
+                  <output><![CDATA[Saving results to: C:/Users/Siphome/AppData/LocalLow/DefaultCompany/Steel Surge\TestResults.xml
+]]></output>
+                </test-case>
+              </test-suite>
+            </test-suite>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

@@ -1,0 +1,28 @@
+{
+    "name": "TestsPlayMode",
+    "rootNamespace": "SteelSurge.Tests.PlayMode",
+    "references": [
+        "Core",
+        "Core.Network",
+        "Core.UI",
+        "UI",
+        "Network",
+        "Unity.InputSystem.TestFramework",
+        "Zenject",
+        "DOTween.Modules",
+        "UniTask",
+        "Main",
+        "Unity.Netcode.Runtime"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

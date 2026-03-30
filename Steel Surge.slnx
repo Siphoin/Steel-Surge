@@ -27,6 +27,7 @@
   <Project Path="DOTween.Modules.csproj" />
   <Project Path="Apex.Serialization.csproj" />
   <Project Path="Main.csproj" />
+  <Project Path="TestsPlayMode.csproj" />
   <Project Path="UniTask.TextMeshPro.csproj" />
   <Project Path="ExLibEditor.csproj" />
   <Project Path="InputSystem.csproj" />
@@ -37,6 +38,7 @@
   <Project Path="Boxophobic.SkyboxCubemapExtended.Editor.csproj" />
   <Project Path="IngameDebugConsole.Editor.csproj" />
   <Project Path="UniTask.DOTween.csproj" />
+  <Project Path="TestsEditMode.csproj" />
   <Project Path="Core.UI.csproj" />
   <Project Path="Extensions.csproj" />
 </Solution>
