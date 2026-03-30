@@ -50,7 +50,44 @@ MonoBehaviour:
   - {fileID: -1995709230869643012}
   - {fileID: 5887456857348719118}
   - {fileID: -99075884671302797}
+  - {fileID: 1098227017385275353}
+  - {fileID: 4434437948187717771}
+  - {fileID: 7789887182883083180}
   parent: {fileID: 0}
+--- !u!114 &1098227017385275353
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd402de4eb7669046830c326d89b03b4, type: 3}
+  m_Name: AttackRange
+  m_EditorClassIdentifier: AITree::RenownedGames.AITree.FloatKey
+  category: 
+  description: 
+  sync: 0
+  isLocal: 0
+  value: 0
+--- !u!114 &4434437948187717771
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd402de4eb7669046830c326d89b03b4, type: 3}
+  m_Name: AttackSpeed
+  m_EditorClassIdentifier: AITree::RenownedGames.AITree.FloatKey
+  category: 
+  description: 
+  sync: 0
+  isLocal: 0
+  value: 0
 --- !u!114 &5887456857348719118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -68,3 +105,20 @@ MonoBehaviour:
   sync: 0
   isLocal: 0
   value: {x: 0, y: 0, z: 0}
+--- !u!114 &7789887182883083180
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fcfcad34f5547eb4292ce0c46aef412c, type: 3}
+  m_Name: DEBUG_STRING
+  m_EditorClassIdentifier: AITree::RenownedGames.AITree.StringKey
+  category: 
+  description: 
+  sync: 0
+  isLocal: 0
+  value: 
