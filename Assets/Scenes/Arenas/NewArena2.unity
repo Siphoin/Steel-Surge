@@ -4519,6 +4519,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
       insertIndex: -1
       addedObject: {fileID: 549326815}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 549326816}
   m_SourcePrefab: {fileID: 100100000, guid: 75925c365bd895145beefbc806717633, type: 3}
 --- !u!1001 &328622307
 PrefabInstance:
@@ -8627,6 +8630,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Handlers.UnitAnimatorHandler
   _moveSpeedThreshold: 0.1
   _checkInterval: 0.1
+--- !u!114 &549326816
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549326800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd042307f5e89794fb5b39eab0e43864, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core.Network::SteelSurge.Core.Network.HealthSystem.Components.HealthComponent
+  ShowTopMostFoldoutHeaderGroup: 1
+  _maxHealth: 100
 --- !u!1001 &549822550
 PrefabInstance:
   m_ObjectHideFlags: 0

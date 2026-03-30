@@ -24,7 +24,6 @@ namespace SteelSurge.Core.UnitSystem.TestScripts
                 if (Physics.Raycast(ray, out RaycastHit hit))
                 {
                     _unit.StateMachine.SetTargetPoint(hit.point);
-                    _unit.NavMesh.SetDestination(hit.point);
                 }
             }
         }

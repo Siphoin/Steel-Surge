@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: SequencerNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SequencerNode
   nodeName: Move To Point
-  nodePosition: {x: 734, y: 262}
+  nodePosition: {x: 734, y: 299}
   breakpoint: 0
   arrangeable: 1
   decorators:
@@ -35,7 +35,7 @@ MonoBehaviour:
   m_Name: SelectorNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SelectorNode
   nodeName: Attack or Chase
-  nodePosition: {x: 116, y: 443}
+  nodePosition: {x: 116, y: 517}
   breakpoint: 0
   arrangeable: 1
   decorators: []
@@ -138,7 +138,7 @@ MonoBehaviour:
   m_Name: WaitTask
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.WaitTask
   nodeName: Wait
-  nodePosition: {x: 258.5, y: 716}
+  nodePosition: {x: 258.5, y: 790}
   breakpoint: 0
   arrangeable: 1
   decorators: []
@@ -159,11 +159,12 @@ MonoBehaviour:
   m_Name: SequencerNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SequencerNode
   nodeName: Combat
-  nodePosition: {x: 130.5, y: 262}
+  nodePosition: {x: 128, y: 299}
   breakpoint: 0
   arrangeable: 1
   decorators:
   - {fileID: 2165685326538901428}
+  - {fileID: 2405345365831439954}
   services: []
   children:
   - {fileID: -7082131308984925933}
@@ -180,7 +181,7 @@ MonoBehaviour:
   m_Name: SequencerNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SequencerNode
   nodeName: Do Attack
-  nodePosition: {x: 222, y: 561}
+  nodePosition: {x: 222, y: 635}
   breakpoint: 0
   arrangeable: 1
   decorators:
@@ -201,7 +202,7 @@ MonoBehaviour:
   m_Name: MoveToTask
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.MoveToTask
   nodeName: Move To
-  nodePosition: {x: 794.5, y: 518}
+  nodePosition: {x: 794.5, y: 555}
   breakpoint: 0
   arrangeable: 1
   decorators: []
@@ -227,7 +228,7 @@ MonoBehaviour:
   m_Name: MoveToTask
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.MoveToTask
   nodeName: Move To
-  nodePosition: {x: 0, y: 561}
+  nodePosition: {x: 0, y: 635}
   breakpoint: 0
   arrangeable: 1
   decorators:
@@ -276,6 +277,8 @@ MonoBehaviour:
   - {fileID: 8212772147328275686}
   - {fileID: -255287392764946589}
   - {fileID: 2437907674914152722}
+  - {fileID: 5415839915913179253}
+  - {fileID: 2405345365831439954}
   groups: []
   notes: []
   selectedNode: {fileID: 0}
@@ -339,6 +342,27 @@ MonoBehaviour:
       type: {class: TransformQuery, ns: RenownedGames.AITree, asm: AITree}
       data:
         comparer: 0
+--- !u!114 &2405345365831439954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda7c2807015be244af640a6409a445b, type: 3}
+  m_Name: IsAliveDecorator
+  m_EditorClassIdentifier: Core::SteelSurge.Core.AI.Decorators.IsAliveDecorator
+  nodeName: Target is Alive
+  nodePosition: {x: 0, y: 0}
+  breakpoint: 0
+  arrangeable: 1
+  child: {fileID: 0}
+  notifyObserver: 1
+  observerAbort: 3
+  targetKey: {fileID: -99075884671302797, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
+  invert: 0
 --- !u!114 &2437907674914152722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -372,7 +396,7 @@ MonoBehaviour:
   m_Name: SequencerNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SequencerNode
   nodeName: Idle
-  nodePosition: {x: 450, y: 262}
+  nodePosition: {x: 450, y: 299}
   breakpoint: 0
   arrangeable: 1
   decorators:
@@ -380,6 +404,27 @@ MonoBehaviour:
   - {fileID: -5419395932237214534}
   services: []
   children: []
+--- !u!114 &5415839915913179253
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eda7c2807015be244af640a6409a445b, type: 3}
+  m_Name: IsAliveDecorator
+  m_EditorClassIdentifier: Core::SteelSurge.Core.AI.Decorators.IsAliveDecorator
+  nodeName: Self Unit is Alive
+  nodePosition: {x: 0, y: 0}
+  breakpoint: 0
+  arrangeable: 1
+  child: {fileID: 0}
+  notifyObserver: 1
+  observerAbort: 3
+  targetKey: {fileID: -1995709230869643012, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
+  invert: 0
 --- !u!114 &7623072134571450722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -444,11 +489,12 @@ MonoBehaviour:
   m_Name: SelectorNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SelectorNode
   nodeName: Main
-  nodePosition: {x: 432.5, y: 107}
+  nodePosition: {x: 404.5, y: 107}
   breakpoint: 0
   arrangeable: 1
   decorators:
   - {fileID: 2437907674914152722}
+  - {fileID: 5415839915913179253}
   services: []
   children:
   - {fileID: -2699596930814016197}
