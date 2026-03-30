@@ -10,15 +10,18 @@ namespace SteelSurge.Core.UnitSystem
     [RequireComponent(typeof(UnitNavMesh))]
     [RequireComponent(typeof(UnitStateMachine))]
     [RequireComponent(typeof(UnitRotationHandler))]
+    [RequireComponent(typeof(UnitAnimatorHandler))]
     public class Unit : SteelSurge.Core.Network.Components.NetworkObject, IUnit
     {
         [SerializeField, ReadOnly] private UnitNavMesh _navMesh;
         [SerializeField, ReadOnly] private UnitStateMachine _stateMachine;
         [SerializeField, ReadOnly] private UnitRotationHandler _rotationHandler;
+        [SerializeField, ReadOnly] private UnitAnimatorHandler _animatorHandler;
 
         public IUnitNavMesh NavMesh => _navMesh;
         public IUnitStateMachine StateMachine => _stateMachine;
         public IUnitRotationHandler RotationHandler => _rotationHandler;
+        public IUnitAnimatorHandler AnimatorHandler => _animatorHandler;
 
         private void OnValidate()
         {
@@ -35,6 +38,11 @@ namespace SteelSurge.Core.UnitSystem
             if (!_rotationHandler)
             {
                 _rotationHandler = GetComponent<UnitRotationHandler>();
+            }
+
+            if (!_animatorHandler)
+            {
+                _animatorHandler = GetComponent<UnitAnimatorHandler>();
             }
         }
     }
