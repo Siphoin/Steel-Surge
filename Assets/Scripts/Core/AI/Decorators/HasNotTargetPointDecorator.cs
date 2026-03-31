@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace SteelSurge.Core.AI.Decorators
 {
-    [NodeContent("Decorators/Has Not Target Point", "Проверяет: не установлен ли TargetPoint (negative infinity)")]
+    [NodeContent("Decorators/Has Not Target Point", "Check: is TargetPoint NOT set (negative infinity)")]
     public class HasNotTargetPointDecorator : ObserverDecorator
     {
         [Title("Blackboard")]
-        [Tooltip("Ключ TargetPoint (Vector3)")]
+        [Tooltip("TargetPoint key (Vector3)")]
         [SerializeField]
         [NonLocal]
         private Key targetPointKey;
@@ -39,7 +39,7 @@ namespace SteelSurge.Core.AI.Decorators
 
         protected override void OnFlowUpdate() { }
 
-        public override string GetDescription() => "TargetPoint не установлен";
+        public override string GetDescription() => "TargetPoint is NOT Set";
 
         private bool HasTargetPoint()
         {
