@@ -12,9 +12,13 @@
         "DOTween.Modules",
         "UniTask",
         "Main",
-        "Unity.TestFramework"
+        "Unity.Netcode.Runtime",
+        "Unity.Collections",
+        ""
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,
