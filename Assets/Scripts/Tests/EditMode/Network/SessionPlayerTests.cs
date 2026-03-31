@@ -57,7 +57,7 @@ namespace SteelSurge.Tests.EditMode.Network
                 CurrentRoomId = new NetworkGuid(Guid.NewGuid())
             };
 
-            SessionPlayer sessionPlayer = new SessionPlayer(networkPlayer, teamColor: 3);
+            SessionPlayer sessionPlayer = new SessionPlayer(networkPlayer, teamColor: 3, 2);
 
             Assert.AreEqual(42, sessionPlayer.ClientId);
             Assert.AreEqual(100, sessionPlayer.CurrentEnergy);

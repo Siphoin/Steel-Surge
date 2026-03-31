@@ -21,7 +21,22 @@ namespace SteelSurge.Network.Handlers
         private NetworkList<NetworkPlayer> ConnectedPlayers { get; set; }
         private readonly Dictionary<ulong, string> _pendingNames = new();
 
-        private void Awake() => ConnectedPlayers = new NetworkList<NetworkPlayer>();
+        // Публичные свойства для тестирования
+        public SignalBus SignalBus => _signalBus;
+
+        /// <summary>
+        /// Ручная инициализация для тестов (без Zenject).
+        /// </summary>
+        public void Initialize(SignalBus signalBus, NetworkList<NetworkPlayer> connectedPlayers = null)
+        {
+            _signalBus = signalBus;
+            if (connectedPlayers != null)
+            {
+                ConnectedPlayers = connectedPlayers;
+            }
+        }
+
+        private void Awake() => ConnectedPlayers ??= new NetworkList<NetworkPlayer>();
 
         public override void OnNetworkSpawn()
         {
@@ -131,6 +146,11 @@ namespace SteelSurge.Network.Handlers
 
         public NetworkPlayer GetPlayer(ulong clientId)
         {
+            if (ConnectedPlayers == null)
+            {
+                return NetworkPlayer.Empty;
+            }
+
             for (int i = 0; i < ConnectedPlayers.Count; i++)
             {
                 if (ConnectedPlayers[i].ClientId == clientId)
@@ -140,7 +160,6 @@ namespace SteelSurge.Network.Handlers
             }
 
             return NetworkPlayer.Empty;
-
         }
     }
 }

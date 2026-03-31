@@ -86,7 +86,7 @@ namespace RenownedGames.AITree.Nodes
 
             if (!trackMovingGoal)
             {
-                if (key.TryGetPosition(Space.World, out Vector3 value))
+                if (key.TryGetPosition(Space.World, out Vector3 value) && value != Vector3.negativeInfinity)
                 {
                     agent.destination = value;
                 }
@@ -108,7 +108,7 @@ namespace RenownedGames.AITree.Nodes
 
             if (trackMovingGoal)
             {
-                if (key.TryGetPosition(Space.World, out Vector3 value))
+                if (key.TryGetPosition(Space.World, out Vector3 value) && value != Vector3.negativeInfinity)
                 {
                     lastTargetPosition = value;
                     agent.destination = value;
@@ -117,7 +117,7 @@ namespace RenownedGames.AITree.Nodes
                 {
                     if (goLastPointOnLost)
                     {
-                        if (lastTargetPosition != null)
+                        if (lastTargetPosition != null && lastTargetPosition != Vector3.negativeInfinity)
                         {
                             agent.destination = lastTargetPosition.Value;
                         }

@@ -13,15 +13,16 @@ MonoBehaviour:
   m_Name: SequencerNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SequencerNode
   nodeName: Move To Point
-  nodePosition: {x: 734, y: 299}
+  nodePosition: {x: 753, y: 225}
   breakpoint: 0
   arrangeable: 1
   decorators:
-  - {fileID: 1338033599209827861}
   - {fileID: 8212772147328275686}
+  - {fileID: -648182016715159553}
   services: []
   children:
   - {fileID: -255287392764946589}
+  - {fileID: 8080848484427264374}
 --- !u!114 &-7082131308984925933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35,7 +36,7 @@ MonoBehaviour:
   m_Name: SelectorNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SelectorNode
   nodeName: Attack or Chase
-  nodePosition: {x: 116, y: 517}
+  nodePosition: {x: 116, y: 443}
   breakpoint: 0
   arrangeable: 1
   decorators: []
@@ -43,37 +44,6 @@ MonoBehaviour:
   children:
   - {fileID: -34052378210753535}
   - {fileID: -1272033008795704647}
---- !u!114 &-5419395932237214534
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 188f33bd97f999943bfba3bc98458f77, type: 3}
-  m_Name: BlackboardConditionDecorator
-  m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.BlackboardConditionDecorator
-  nodeName: Point is Seted
-  nodePosition: {x: 0, y: 0}
-  breakpoint: 0
-  arrangeable: 1
-  child: {fileID: 0}
-  notifyObserver: 1
-  observerAbort: 3
-  key: {fileID: 5887456857348719118, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
-  keyQuery:
-    rid: 6082517701846630513
-  references:
-    version: 2
-    RefIds:
-    - rid: 6082517701846630513
-      type: {class: VectorQuery, ns: RenownedGames.AITree, asm: AITree}
-      data:
-        comparer: 0
-        vector: {x: 0, y: 0, z: 0}
-        distanceThreshold: 0
 --- !u!114 &-4406945170375928241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -138,7 +108,7 @@ MonoBehaviour:
   m_Name: WaitTask
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.WaitTask
   nodeName: Wait
-  nodePosition: {x: 258.5, y: 790}
+  nodePosition: {x: 258.5, y: 716}
   breakpoint: 0
   arrangeable: 1
   decorators: []
@@ -159,7 +129,7 @@ MonoBehaviour:
   m_Name: SequencerNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SequencerNode
   nodeName: Combat
-  nodePosition: {x: 128, y: 299}
+  nodePosition: {x: 128, y: 225}
   breakpoint: 0
   arrangeable: 1
   decorators:
@@ -181,7 +151,7 @@ MonoBehaviour:
   m_Name: SequencerNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SequencerNode
   nodeName: Do Attack
-  nodePosition: {x: 222, y: 635}
+  nodePosition: {x: 222, y: 561}
   breakpoint: 0
   arrangeable: 1
   decorators:
@@ -189,6 +159,26 @@ MonoBehaviour:
   services: []
   children:
   - {fileID: -2748904188342465779}
+--- !u!114 &-648182016715159553
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60c0e3d798973bf42acc73c9566450e4, type: 3}
+  m_Name: HasTargetPointDecorator
+  m_EditorClassIdentifier: Core::SteelSurge.Core.AI.Decorators.HasTargetPointDecorator
+  nodeName: Point Is Seted
+  nodePosition: {x: 0, y: 0}
+  breakpoint: 0
+  arrangeable: 1
+  child: {fileID: 0}
+  notifyObserver: 0
+  observerAbort: 3
+  targetPointKey: {fileID: 5887456857348719118, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
 --- !u!114 &-255287392764946589
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,7 +192,7 @@ MonoBehaviour:
   m_Name: MoveToTask
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.MoveToTask
   nodeName: Move To
-  nodePosition: {x: 794.5, y: 555}
+  nodePosition: {x: 680, y: 443}
   breakpoint: 0
   arrangeable: 1
   decorators: []
@@ -228,7 +218,7 @@ MonoBehaviour:
   m_Name: MoveToTask
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.MoveToTask
   nodeName: Move To
-  nodePosition: {x: 0, y: 635}
+  nodePosition: {x: 0, y: 561}
   breakpoint: 0
   arrangeable: 1
   decorators:
@@ -271,48 +261,17 @@ MonoBehaviour:
   - {fileID: 7623072134571450722}
   - {fileID: 4283574894465435902}
   - {fileID: -3386893810073384220}
-  - {fileID: -5419395932237214534}
   - {fileID: -8749274962304373387}
-  - {fileID: 1338033599209827861}
   - {fileID: 8212772147328275686}
   - {fileID: -255287392764946589}
-  - {fileID: 2437907674914152722}
-  - {fileID: 5415839915913179253}
   - {fileID: 2405345365831439954}
+  - {fileID: 5883370705064415537}
+  - {fileID: 8080848484427264374}
+  - {fileID: -648182016715159553}
+  - {fileID: 6359886823355616790}
   groups: []
   notes: []
   selectedNode: {fileID: 0}
---- !u!114 &1338033599209827861
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 188f33bd97f999943bfba3bc98458f77, type: 3}
-  m_Name: BlackboardConditionDecorator
-  m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.BlackboardConditionDecorator
-  nodeName: Blackboard Condition
-  nodePosition: {x: 0, y: 0}
-  breakpoint: 0
-  arrangeable: 1
-  child: {fileID: 0}
-  notifyObserver: 1
-  observerAbort: 3
-  key: {fileID: 5887456857348719118, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
-  keyQuery:
-    rid: 6082517701846630514
-  references:
-    version: 2
-    RefIds:
-    - rid: 6082517701846630514
-      type: {class: VectorQuery, ns: RenownedGames.AITree, asm: AITree}
-      data:
-        comparer: 1
-        vector: {x: 0, y: 0, z: 0}
-        distanceThreshold: 0
 --- !u!114 &2165685326538901428
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -363,26 +322,6 @@ MonoBehaviour:
   observerAbort: 3
   targetKey: {fileID: -99075884671302797, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
   invert: 0
---- !u!114 &2437907674914152722
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ba5b17a403a00c4986d2cf1296b866b, type: 3}
-  m_Name: NetworkIsOwnerDecorator
-  m_EditorClassIdentifier: Core::SteelSurge.Core.AI.Decorators.NetworkIsOwnerDecorator
-  nodeName: Is Owner
-  nodePosition: {x: 0, y: 0}
-  breakpoint: 0
-  arrangeable: 1
-  child: {fileID: 0}
-  notifyObserver: 1
-  observerAbort: 3
-  invert: 0
 --- !u!114 &4283574894465435902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -396,15 +335,16 @@ MonoBehaviour:
   m_Name: SequencerNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SequencerNode
   nodeName: Idle
-  nodePosition: {x: 450, y: 299}
+  nodePosition: {x: 462, y: 225}
   breakpoint: 0
   arrangeable: 1
   decorators:
   - {fileID: -3386893810073384220}
-  - {fileID: -5419395932237214534}
+  - {fileID: 6359886823355616790}
   services: []
-  children: []
---- !u!114 &5415839915913179253
+  children:
+  - {fileID: 5883370705064415537}
+--- !u!114 &5883370705064415537
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -413,18 +353,38 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eda7c2807015be244af640a6409a445b, type: 3}
-  m_Name: IsAliveDecorator
-  m_EditorClassIdentifier: Core::SteelSurge.Core.AI.Decorators.IsAliveDecorator
-  nodeName: Self Unit is Alive
+  m_Script: {fileID: 11500000, guid: 67b005625f0df5244bd9950a34ca78b3, type: 3}
+  m_Name: FindEnemyInRadiusAction
+  m_EditorClassIdentifier: Core::SteelSurge.Core.FindEnemyInRadiusAction
+  nodeName: Observe Enemies
+  nodePosition: {x: 450, y: 443}
+  breakpoint: 0
+  arrangeable: 1
+  decorators: []
+  services: []
+  ignoreAbortSelf: 0
+  searchRadius: 15
+  targetKey: {fileID: -99075884671302797, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
+--- !u!114 &6359886823355616790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c679e963690ab6b4caf032af23877ed9, type: 3}
+  m_Name: HasNotTargetPointDecorator
+  m_EditorClassIdentifier: Core::SteelSurge.Core.AI.Decorators.HasNotTargetPointDecorator
+  nodeName: No Target Point
   nodePosition: {x: 0, y: 0}
   breakpoint: 0
   arrangeable: 1
   child: {fileID: 0}
   notifyObserver: 1
-  observerAbort: 3
-  targetKey: {fileID: -1995709230869643012, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
-  invert: 0
+  observerAbort: 0
+  targetPointKey: {fileID: 0}
 --- !u!114 &7623072134571450722
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -447,6 +407,26 @@ MonoBehaviour:
   targetKey: {fileID: -99075884671302797, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
   rangeKey: {fileID: 1098227017385275353, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
   comparison: 2
+--- !u!114 &8080848484427264374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ceb624a199e68cc4ead4ef8f7c606f5d, type: 3}
+  m_Name: ResetTargetPointAction
+  m_EditorClassIdentifier: Core::SteelSurge.Core.AI.Actions.ResetTargetPointAction
+  nodeName: Reset Point
+  nodePosition: {x: 843, y: 443}
+  breakpoint: 0
+  arrangeable: 1
+  decorators: []
+  services: []
+  ignoreAbortSelf: 0
+  targetPointKey: {fileID: 5887456857348719118, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
 --- !u!114 &8212772147328275686
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -459,7 +439,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 188f33bd97f999943bfba3bc98458f77, type: 3}
   m_Name: BlackboardConditionDecorator
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.BlackboardConditionDecorator
-  nodeName: Blackboard Condition
+  nodeName: No Has Target
   nodePosition: {x: 0, y: 0}
   breakpoint: 0
   arrangeable: 1
@@ -489,12 +469,10 @@ MonoBehaviour:
   m_Name: SelectorNode
   m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SelectorNode
   nodeName: Main
-  nodePosition: {x: 404.5, y: 107}
+  nodePosition: {x: 450, y: 107}
   breakpoint: 0
   arrangeable: 1
-  decorators:
-  - {fileID: 2437907674914152722}
-  - {fileID: 5415839915913179253}
+  decorators: []
   services: []
   children:
   - {fileID: -2699596930814016197}
@@ -513,7 +491,7 @@ MonoBehaviour:
   m_Name: RootNode
   m_EditorClassIdentifier: AITree::RenownedGames.AITree.RootNode
   nodeName: 
-  nodePosition: {x: 437, y: 0}
+  nodePosition: {x: 444, y: 0}
   breakpoint: 0
   arrangeable: 1
   child: {fileID: 8528312614270398380}

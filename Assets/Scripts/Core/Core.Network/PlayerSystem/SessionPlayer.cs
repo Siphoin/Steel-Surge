@@ -11,6 +11,7 @@ namespace SteelSurge.Core.Network
         public int CurrentEnergy;
         public ulong ClientId;
         public byte TeamColor;
+        public byte PlayerTeam;
         public FixedString64Bytes PlayerName;
 
         public static SessionPlayer Empty => new SessionPlayer
@@ -23,12 +24,13 @@ namespace SteelSurge.Core.Network
 
         public bool IsEmpty => Equals(Empty);
 
-        public SessionPlayer(NetworkPlayer networkPlayer, byte teamColor)
+        public SessionPlayer(NetworkPlayer networkPlayer, byte teamColor, byte playerTeam)
         {
             CurrentEnergy = 100;
             ClientId = networkPlayer.ClientId;
             TeamColor = teamColor;
             PlayerName = networkPlayer.Name;
+            PlayerTeam = playerTeam;
         }
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -36,12 +38,23 @@ namespace SteelSurge.Core.Network
             serializer.SerializeValue(ref CurrentEnergy);
             serializer.SerializeValue(ref ClientId);
             serializer.SerializeValue(ref TeamColor);
+            serializer.SerializeValue(ref PlayerTeam);
             serializer.SerializeValue(ref PlayerName);
         }
 
         public bool Equals(SessionPlayer other)
         {
             return ClientId == other.ClientId;
+        }
+
+        public bool IsEnemyForPlayer(SessionPlayer other)
+        {
+            return PlayerTeam != other.PlayerTeam;
+        }
+
+        public bool IsAllyForPlayer(SessionPlayer other)
+        {
+            return PlayerTeam == other.PlayerTeam;
         }
 
         public override bool Equals(object obj)

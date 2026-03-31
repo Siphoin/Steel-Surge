@@ -12,7 +12,8 @@
         "DOTween.Modules",
         "UniTask",
         "Main",
-        "Unity.Netcode.Runtime"
+        "Unity.Netcode.Runtime",
+        "UnityEngine.TestRunner"
     ],
     "includePlatforms": [],
     "excludePlatforms": [

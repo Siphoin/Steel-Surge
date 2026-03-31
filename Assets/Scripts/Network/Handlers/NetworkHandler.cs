@@ -19,6 +19,11 @@ namespace SteelSurge.Network.Handlers
 
         private readonly List<SubNetworkHandler> _subHandlers = new();
 
+        // Публичные свойства для тестирования
+        public SignalBus SignalBus => _signalBus;
+        public NetworkHandlerConfig Config => _config;
+        public IReadOnlyList<SubNetworkHandler> SubHandlers => _subHandlers;
+
         private void Start()
         {
              if (Application.isBatchMode)
@@ -48,6 +53,15 @@ namespace SteelSurge.Network.Handlers
             SetupAndStart(() => NetworkManager.Singleton.StartServer(), true, false);
         }
 
+        /// <summary>
+        /// Ручная инициализация для тестов (без Zenject).
+        /// </summary>
+        public void Initialize(SignalBus signalBus, NetworkHandlerConfig config)
+        {
+            _signalBus = signalBus;
+            _config = config;
+        }
+
         private void SetupAndStart(Func<bool> startAction, bool isServer, bool isHost)
         {
             EnsureNetworkManagerExists();
@@ -57,7 +71,7 @@ namespace SteelSurge.Network.Handlers
 
             if (startAction.Invoke())
             {
-                _signalBus.Fire(new NetworkStartedSignal(isServer, isHost, NetworkManager.Singleton.LocalClientId));
+                _signalBus?.Fire(new NetworkStartedSignal(isServer, isHost, NetworkManager.Singleton.LocalClientId));
 
                 if (isServer)
                 {
@@ -95,8 +109,8 @@ namespace SteelSurge.Network.Handlers
             var transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
             if (transport != null)
             {
-                transport.ConnectionData.Address = _config.Address;
-                transport.ConnectionData.Port = _config.Port;
+                transport.ConnectionData.Address = _config?.Address ?? "127.0.0.1";
+                transport.ConnectionData.Port = _config?.Port ?? 7777;
             }
         }
 
@@ -120,13 +134,22 @@ namespace SteelSurge.Network.Handlers
         private void EnsureNetworkManagerExists()
         {
             if (NetworkManager.Singleton != null) return;
-            Instantiate(_config.NetworkManagerPrefab);
+            if (_config?.NetworkManagerPrefab != null)
+            {
+                Instantiate(_config.NetworkManagerPrefab);
+            }
+            else
+            {
+                // Для тестов: создаём минимальный NetworkManager
+                var go = new GameObject("NetworkManager");
+                go.AddComponent<NetworkManager>();
+            }
         }
 
         private void SubscribeServerEvents()
         {
-            NetworkManager.Singleton.OnClientConnectedCallback += (id) => _signalBus.Fire(new PlayerJoinedSignal(id));
-            NetworkManager.Singleton.OnClientDisconnectCallback += (id) => _signalBus.Fire(new PlayerLeftSignal(id));
+            NetworkManager.Singleton.OnClientConnectedCallback += (id) => _signalBus?.Fire(new PlayerJoinedSignal(id));
+            NetworkManager.Singleton.OnClientDisconnectCallback += (id) => _signalBus?.Fire(new PlayerLeftSignal(id));
         }
 
         private void ApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
@@ -134,12 +157,12 @@ namespace SteelSurge.Network.Handlers
             if (request.Payload.Length > 0)
             {
                 string playerName = System.Text.Encoding.UTF8.GetString(request.Payload);
-                _signalBus.Fire(new ConnectionApprovedSignal(request.ClientNetworkId, playerName));
+                _signalBus?.Fire(new ConnectionApprovedSignal(request.ClientNetworkId, playerName));
             }
-            else if (NetworkManager.Singleton.IsHost && request.ClientNetworkId == NetworkManager.Singleton.LocalClientId)
+            else if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost && request.ClientNetworkId == NetworkManager.Singleton.LocalClientId)
             {
                 // Для хоста без payload
-                _signalBus.Fire(new ConnectionApprovedSignal(request.ClientNetworkId, "Host"));
+                _signalBus?.Fire(new ConnectionApprovedSignal(request.ClientNetworkId, "Host"));
             }
 
             response.Approved = true;
@@ -147,6 +170,19 @@ namespace SteelSurge.Network.Handlers
             response.Pending = false;
         }
 
-
+        /// <summary>
+        /// Вызывает ApprovalCheck для тестирования.
+        /// </summary>
+        public NetworkManager.ConnectionApprovalResponse TestApprovalCheck(ulong clientId, string playerName)
+        {
+            var request = new NetworkManager.ConnectionApprovalRequest
+            {
+                ClientNetworkId = clientId,
+                Payload = System.Text.Encoding.UTF8.GetBytes(playerName ?? "")
+            };
+            var response = new NetworkManager.ConnectionApprovalResponse();
+            ApprovalCheck(request, response);
+            return response;
+        }
     }
 }

@@ -11,11 +11,19 @@ namespace SteelSurge.Core.Network.Handlers
         private NetworkList<SessionPlayer> _sessionPlayers = new();
         private readonly Dictionary<ulong, SessionPlayer> _playerCache = new();
 
-        public void Add(NetworkPlayer networkPlayer, byte teamColor = 0)
+            public SessionPlayer LocalPlayer {
+            get
+            {
+                ulong localClientId = NetworkManager.Singleton.LocalClientId;
+                return Get(localClientId);
+            }
+        }
+
+        public void Add(NetworkPlayer networkPlayer, byte teamColor = 0, byte playerTeam = 0)
         {
             if (!IsServer) return;
 
-            var sessionPlayer = new SessionPlayer(networkPlayer, teamColor);
+            var sessionPlayer = new SessionPlayer(networkPlayer, teamColor, playerTeam);
             _sessionPlayers.Add(sessionPlayer);
             _playerCache[sessionPlayer.ClientId] = sessionPlayer;
 

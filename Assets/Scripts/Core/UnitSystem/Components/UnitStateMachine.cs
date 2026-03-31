@@ -30,11 +30,15 @@ namespace SteelSurge.Core.UnitSystem.Components
 
         public Vector3 TargetPoint
         {
-            get => _targetPointKey?.GetValue() ?? Vector3.zero;
+            get => _targetPointKey?.GetValue() ?? Vector3.negativeInfinity;
             set
             {
+
                 if (_targetPointKey != null)
+                {
                     _targetPointKey.SetValue(value);
+                    Debug.Log("[UnitStateMachine] TargetPoint set to " + _targetPointKey.GetValue());
+                }
             }
         }
 
@@ -94,6 +98,10 @@ namespace SteelSurge.Core.UnitSystem.Components
 
             _blackboard.TryFindKey("Target", out _targetKey);
             _blackboard.TryFindKey("TargetPoint", out _targetPointKey);
+            if (_targetPointKey != null)
+            {
+                _targetPointKey.SetValue(Vector3.negativeInfinity);
+            }
             _blackboard.TryFindKey("AttackRange", out _attackRangeKey);
             _blackboard.TryFindKey("AttackSpeed", out _attackSpeedKey);
             _blackboard.TryFindKey("DEBUG_STRING", out _debugStringKey);
