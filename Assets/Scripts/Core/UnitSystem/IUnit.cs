@@ -5,6 +5,7 @@ namespace SteelSurge.Core.UnitSystem
 {
     public interface IUnit
     {
+        ScriptableUnitData Data { get; }
         IUnitNavMesh NavMesh { get; }
         IUnitStateMachine StateMachine { get; }
         IUnitRotationHandler RotationHandler { get; }

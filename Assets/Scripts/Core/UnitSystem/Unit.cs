@@ -17,7 +17,9 @@ namespace SteelSurge.Core.UnitSystem
         [SerializeField, ReadOnly] private UnitStateMachine _stateMachine;
         [SerializeField, ReadOnly] private UnitRotationHandler _rotationHandler;
         [SerializeField, ReadOnly] private UnitAnimatorHandler _animatorHandler;
+        [SerializeField] private ScriptableUnitData _data;
 
+        public ScriptableUnitData Data => _data;
         public IUnitNavMesh NavMesh => _navMesh;
         public IUnitStateMachine StateMachine => _stateMachine;
         public IUnitRotationHandler RotationHandler => _rotationHandler;

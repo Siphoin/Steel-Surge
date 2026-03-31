@@ -4525,6 +4525,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
       insertIndex: -1
       addedObject: {fileID: 549326819}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 549326822}
   m_SourcePrefab: {fileID: 100100000, guid: 75925c365bd895145beefbc806717633, type: 3}
 --- !u!1001 &328622307
 PrefabInstance:
@@ -8516,10 +8519,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Unit
   ShowTopMostFoldoutHeaderGroup: 1
+  _networkObjectInternal: {fileID: 0}
   _navMesh: {fileID: 549326809}
   _stateMachine: {fileID: 549326812}
   _rotationHandler: {fileID: 549326813}
   _animatorHandler: {fileID: 549326815}
+  _data: {fileID: 11400000, guid: 604ea3d222aeeb841a0671fadf9a6b83, type: 2}
 --- !u!114 &549326807
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8593,6 +8598,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f9efa330f5d1f844fab5d18dddeea051, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Components.UnitStateMachine
+  _behaviourRunner: {fileID: 0}
 --- !u!114 &549326813
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8646,6 +8652,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Core.Network::SteelSurge.Core.Network.HealthSystem.Components.HealthComponent
   ShowTopMostFoldoutHeaderGroup: 1
+  _networkObjectInternal: {fileID: 549326805}
   _maxHealth: 100
 --- !u!136 &549326819
 CapsuleCollider:
@@ -8670,6 +8677,21 @@ CapsuleCollider:
   m_Height: 4.25
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &549326822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 549326800}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b49bee3296462834dbbb82fb059815d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core.Network::SteelSurge.Core.Network.NetworkObjectOwnershipDebug
+  _networkObject: {fileID: 549326806}
+  _showDebugButtons: 1
+  _targetClientId: 1
 --- !u!1001 &549822550
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -26746,6 +26768,356 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1407813370896231627, guid: bd59a9824cfbfd440bf5f956e2ce48e7, type: 3}
   m_PrefabInstance: {fileID: 1706550592}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1708681183
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_Name
+      value: TT_HeavySwordman_1
+      objectReference: {fileID: 0}
+    - target: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 18.785
+      objectReference: {fileID: 0}
+    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.063
+      objectReference: {fileID: 0}
+    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 16.075006
+      objectReference: {fileID: 0}
+    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 9553400, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 783285b0b2323714eadf0fc7807a8e0b, type: 2}
+    - target: {fileID: 9553400, guid: 75925c365bd895145beefbc806717633, type: 3}
+      propertyPath: m_ApplyRootMotion
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: 1
+      addedObject: {fileID: 1708681199}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681198}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681197}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681196}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681195}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681194}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681193}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681192}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681191}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681190}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681188}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681187}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681186}
+    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1708681185}
+  m_SourcePrefab: {fileID: 100100000, guid: 75925c365bd895145beefbc806717633, type: 3}
+--- !u!1 &1708681184 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
+  m_PrefabInstance: {fileID: 1708681183}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1708681185
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b49bee3296462834dbbb82fb059815d4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core.Network::SteelSurge.Core.Network.NetworkObjectOwnershipDebug
+  _networkObject: {fileID: 1708681195}
+  _showDebugButtons: 1
+  _targetClientId: 1
+--- !u!136 &1708681186
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.5
+  m_Height: 4.25
+  m_Direction: 1
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1708681187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd042307f5e89794fb5b39eab0e43864, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core.Network::SteelSurge.Core.Network.HealthSystem.Components.HealthComponent
+  ShowTopMostFoldoutHeaderGroup: 1
+  _networkObjectInternal: {fileID: 1708681196}
+  _maxHealth: 100
+--- !u!114 &1708681188
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b357b297469706245b9311ce49d81e09, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Handlers.UnitAnimatorHandler
+  _moveSpeedThreshold: 0.1
+  _checkInterval: 0.1
+--- !u!114 &1708681190
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22ce47cadc0eb184494c198c65f7a8e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Handlers.UnitRotationHandler
+  _rotationSpeed: 360
+  _stopRotateThreshold: 0.1
+--- !u!114 &1708681191
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifier
+  m_SerializedVersion: 0
+  m_OverrideArea: 1
+  m_Area: 0
+  m_OverrideGenerateLinks: 0
+  m_GenerateLinks: 0
+  m_IgnoreFromBuild: 0
+  m_ApplyToChildren: 1
+  m_AffectedAgents: ffffffff
+--- !u!114 &1708681192
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9efa330f5d1f844fab5d18dddeea051, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Components.UnitStateMachine
+  _behaviourRunner: {fileID: 0}
+--- !u!114 &1708681193
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 649d748f4a0098e4fbe420d0f078eea5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Components.UnitNavMesh
+  _agent: {fileID: 1708681198}
+--- !u!114 &1708681194
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e767420811f9d0f46b6d12cb6f2b504b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core.Network::SteelSurge.Core.Network.Components.NetworkBehaviourRunner
+  ShowTopMostFoldoutHeaderGroup: 1
+  _behaviourRunner: {fileID: 1708681197}
+  _networkObject: {fileID: 1708681195}
+--- !u!114 &1708681195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd17cf7aec377e348ab9eea51f591e76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Unit
+  ShowTopMostFoldoutHeaderGroup: 1
+  _networkObjectInternal: {fileID: 0}
+  _navMesh: {fileID: 1708681193}
+  _stateMachine: {fileID: 1708681192}
+  _rotationHandler: {fileID: 1708681190}
+  _animatorHandler: {fileID: 1708681188}
+  _data: {fileID: 11400000, guid: 604ea3d222aeeb841a0671fadf9a6b83, type: 2}
+--- !u!114 &1708681196
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 2973484478
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &1708681197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 581266756febbf447a9cc1da85c40584, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: AITree::RenownedGames.AITree.BehaviourRunner
+  sharedBehaviourTree: {fileID: 11400000, guid: 4ccfc2a189df75f4fb084732f0ab97cd, type: 2}
+--- !u!195 &1708681198
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.32
+  m_Speed: 3.5
+  m_Acceleration: 4.5334543e+9
+  avoidancePriority: 50
+  m_AngularSpeed: 543533440
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 2
+--- !u!114 &1708681199
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1708681184}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 717a02054ef2699498e6bd4234fd7995, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Zenject::Zenject.ZenAutoInjecter
+  _containerSource: 1
 --- !u!1001 &1710993227
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31376,349 +31748,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 8589144965903021253, guid: 49f40ec54e2a3504dabb5b297710b4c4, type: 3}
   m_PrefabInstance: {fileID: 1954029997}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &1959943022
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_Name
-      value: TT_HeavySwordman_1
-      objectReference: {fileID: 0}
-    - target: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 18.226
-      objectReference: {fileID: 0}
-    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: 0.063
-      objectReference: {fileID: 0}
-    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 16.075006
-      objectReference: {fileID: 0}
-    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 419716, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 9553400, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_Controller
-      value: 
-      objectReference: {fileID: 9100000, guid: 783285b0b2323714eadf0fc7807a8e0b, type: 2}
-    - target: {fileID: 9553400, guid: 75925c365bd895145beefbc806717633, type: 3}
-      propertyPath: m_ApplyRootMotion
-      value: 0
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: 1
-      addedObject: {fileID: 1959943037}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943036}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943035}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943034}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943033}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943032}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943031}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943030}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943029}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943028}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943027}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943026}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943025}
-    - targetCorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1959943024}
-  m_SourcePrefab: {fileID: 100100000, guid: 75925c365bd895145beefbc806717633, type: 3}
---- !u!1 &1959943023 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 182410, guid: 75925c365bd895145beefbc806717633, type: 3}
-  m_PrefabInstance: {fileID: 1959943022}
-  m_PrefabAsset: {fileID: 0}
---- !u!136 &1959943024
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Radius: 0.5
-  m_Height: 4.25
-  m_Direction: 1
-  m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &1959943025
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd042307f5e89794fb5b39eab0e43864, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core.Network::SteelSurge.Core.Network.HealthSystem.Components.HealthComponent
-  ShowTopMostFoldoutHeaderGroup: 1
-  _maxHealth: 100
---- !u!114 &1959943026
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b357b297469706245b9311ce49d81e09, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Handlers.UnitAnimatorHandler
-  _moveSpeedThreshold: 0.1
-  _checkInterval: 0.1
---- !u!114 &1959943027
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 61e625db84f664b44b095c1043d34a26, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.TestScripts.UnitMoveTest
---- !u!114 &1959943028
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 22ce47cadc0eb184494c198c65f7a8e8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Handlers.UnitRotationHandler
-  _rotationSpeed: 360
-  _stopRotateThreshold: 0.1
---- !u!114 &1959943029
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e3fdca004f2d45fe8abbed571a8abd5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.AI.Navigation::Unity.AI.Navigation.NavMeshModifier
-  m_SerializedVersion: 0
-  m_OverrideArea: 1
-  m_Area: 0
-  m_OverrideGenerateLinks: 0
-  m_GenerateLinks: 0
-  m_IgnoreFromBuild: 0
-  m_ApplyToChildren: 1
-  m_AffectedAgents: ffffffff
---- !u!114 &1959943030
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9efa330f5d1f844fab5d18dddeea051, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Components.UnitStateMachine
---- !u!114 &1959943031
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 649d748f4a0098e4fbe420d0f078eea5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Components.UnitNavMesh
-  _agent: {fileID: 1959943036}
---- !u!114 &1959943032
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e767420811f9d0f46b6d12cb6f2b504b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core.Network::SteelSurge.Core.Network.Components.NetworkBehaviourRunner
-  ShowTopMostFoldoutHeaderGroup: 1
-  _behaviourRunner: {fileID: 1959943035}
-  _networkObject: {fileID: 1959943033}
---- !u!114 &1959943033
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd17cf7aec377e348ab9eea51f591e76, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Core::SteelSurge.Core.UnitSystem.Unit
-  ShowTopMostFoldoutHeaderGroup: 1
-  _navMesh: {fileID: 1959943031}
-  _stateMachine: {fileID: 1959943030}
-  _rotationHandler: {fileID: 1959943028}
-  _animatorHandler: {fileID: 1959943026}
---- !u!114 &1959943034
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3981596364
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
---- !u!114 &1959943035
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 581266756febbf447a9cc1da85c40584, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: AITree::RenownedGames.AITree.BehaviourRunner
-  sharedBehaviourTree: {fileID: 11400000, guid: 4ccfc2a189df75f4fb084732f0ab97cd, type: 2}
---- !u!195 &1959943036
-NavMeshAgent:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 1
-  m_AgentTypeID: 0
-  m_Radius: 0.32
-  m_Speed: 3.5
-  m_Acceleration: 4.5334543e+9
-  avoidancePriority: 50
-  m_AngularSpeed: 543533440
-  m_StoppingDistance: 0
-  m_AutoTraverseOffMeshLink: 1
-  m_AutoBraking: 1
-  m_AutoRepath: 1
-  m_Height: 2
-  m_BaseOffset: 0
-  m_WalkableMask: 4294967295
-  m_ObstacleAvoidanceType: 2
---- !u!114 &1959943037
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1959943023}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 717a02054ef2699498e6bd4234fd7995, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Zenject::Zenject.ZenAutoInjecter
-  _containerSource: 1
 --- !u!1001 &1960969389
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -34370,4 +34399,4 @@ SceneRoots:
   - {fileID: 1419177226}
   - {fileID: 1655252197}
   - {fileID: 328138082}
-  - {fileID: 1959943022}
+  - {fileID: 1708681183}

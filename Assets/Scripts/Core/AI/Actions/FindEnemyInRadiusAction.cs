@@ -52,5 +52,13 @@ namespace SteelSurge.Core
 
             return State.Failure;
         }
+
+
+        public override void OnDrawGizmosNodeSelected()
+        {
+            Transform ownerTransform = GetOwner().transform;
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(ownerTransform.position, searchRadius);
+        }
     }
 }

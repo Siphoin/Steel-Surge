@@ -1,4 +1,5 @@
 using RenownedGames.AITree;
+using Sirenix.OdinInspector;
 using UnityEngine;
 
 namespace SteelSurge.Core.UnitSystem.Components
@@ -6,6 +7,7 @@ namespace SteelSurge.Core.UnitSystem.Components
     [RequireComponent(typeof(BehaviourRunner))]
     public class UnitStateMachine : MonoBehaviour, IUnitStateMachine
     {
+        [SerializeField, ReadOnly] private Unit _unit;
         private BehaviourRunner _behaviourRunner;
         private Blackboard _blackboard;
 
@@ -17,7 +19,7 @@ namespace SteelSurge.Core.UnitSystem.Components
         private StringKey _debugStringKey;
 
         public Transform Self => _selfKey?.GetValue();
-        
+
         public Transform Target
         {
             get => _targetKey?.GetValue();
@@ -105,6 +107,19 @@ namespace SteelSurge.Core.UnitSystem.Components
             _blackboard.TryFindKey("AttackRange", out _attackRangeKey);
             _blackboard.TryFindKey("AttackSpeed", out _attackSpeedKey);
             _blackboard.TryFindKey("DEBUG_STRING", out _debugStringKey);
+
+            InitializeStatsFromUnitSO();
+        }
+
+        private void InitializeStatsFromUnitSO()
+        {
+            if (_attackRangeKey != null)
+                _attackRangeKey.SetValue(_unit.Data.AttackRange);
+
+            if (_attackSpeedKey != null)
+                _attackSpeedKey.SetValue(_unit.Data.AttackSpeed);
+
+            Debug.Log($"[UnitStateMachine] Initialized stats for {_unit.name}: AttackRange={_attackRangeKey?.GetValue()}, AttackSpeed={_attackSpeedKey?.GetValue()}");
         }
 
         public void SetTarget(Transform target)
@@ -121,5 +136,15 @@ namespace SteelSurge.Core.UnitSystem.Components
         {
             Target = null;
         }
+
+        private void OnValidate()
+        {
+            if (!_unit)
+            {
+                _unit = GetComponent<Unit>();
+            }
+        }
+
     }
+
 }

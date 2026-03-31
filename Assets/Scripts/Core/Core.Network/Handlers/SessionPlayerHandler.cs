@@ -11,7 +11,8 @@ namespace SteelSurge.Core.Network.Handlers
         private NetworkList<SessionPlayer> _sessionPlayers = new();
         private readonly Dictionary<ulong, SessionPlayer> _playerCache = new();
 
-            public SessionPlayer LocalPlayer {
+        public SessionPlayer LocalPlayer
+        {
             get
             {
                 ulong localClientId = NetworkManager.Singleton.LocalClientId;
@@ -99,6 +100,18 @@ namespace SteelSurge.Core.Network.Handlers
                     break;
                 }
             }
+        }
+
+        public int GetSessionPlayersCount() => _sessionPlayers.Count;
+
+        public SessionPlayer GetByIndex(int index)
+        {
+            if (index < 0 || index >= _sessionPlayers.Count)
+            {
+                return default;
+            }
+
+            return _sessionPlayers[index];
         }
     }
 }

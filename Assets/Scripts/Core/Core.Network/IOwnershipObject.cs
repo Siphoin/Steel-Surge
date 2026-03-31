@@ -4,5 +4,7 @@
     {
         bool IsEnemy { get; }
         bool IsAlly { get; }
+        void ChangeOwnership(ulong newOwnerClientId);
+        void RemoveOwnership();
     }
 }

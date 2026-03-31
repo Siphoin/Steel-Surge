@@ -12,13 +12,13 @@
   <Project Path="UniTask.Linq.csproj" />
   <Project Path="Zenject-Editor.csproj" />
   <Project Path="Boxophobic.Utils.Scripts.csproj" />
+  <Project Path="Core.Network.csproj" />
   <Project Path="AITreeEditor.csproj" />
   <Project Path="ExLib.csproj" />
   <Project Path="IngameDebugConsole.Runtime.csproj" />
   <Project Path="AITree.csproj" />
   <Project Path="MessagePack.csproj" />
   <Project Path="Network.csproj" />
-  <Project Path="Core.Network.csproj" />
   <Project Path="UniTask.Addressables.csproj" />
   <Project Path="Core.csproj" />
   <Project Path="AITree.EQS.csproj" />

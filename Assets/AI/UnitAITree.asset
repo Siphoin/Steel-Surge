@@ -23,27 +23,6 @@ MonoBehaviour:
   children:
   - {fileID: -255287392764946589}
   - {fileID: 8080848484427264374}
---- !u!114 &-7082131308984925933
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fa1770628119ce54980deb844516c178, type: 3}
-  m_Name: SelectorNode
-  m_EditorClassIdentifier: AITree.Nodes::RenownedGames.AITree.Nodes.SelectorNode
-  nodeName: Attack or Chase
-  nodePosition: {x: 116, y: 443}
-  breakpoint: 0
-  arrangeable: 1
-  decorators: []
-  services: []
-  children:
-  - {fileID: -34052378210753535}
-  - {fileID: -1272033008795704647}
 --- !u!114 &-4406945170375928241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62,10 +41,31 @@ MonoBehaviour:
   arrangeable: 1
   child: {fileID: 0}
   notifyObserver: 1
-  observerAbort: 3
+  observerAbort: 1
   targetKey: {fileID: -99075884671302797, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
   rangeKey: {fileID: 1098227017385275353, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
   comparison: 1
+--- !u!114 &-3518856241101200260
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 275e2e74016701e4c9c45f6f51c3f0bf, type: 3}
+  m_Name: AttackUnitAction
+  m_EditorClassIdentifier: Core::SteelSurge.Core.AI.Actions.AttackUnitAction
+  nodeName: Attack
+  nodePosition: {x: 467.487, y: 722.52655}
+  breakpoint: 0
+  arrangeable: 1
+  decorators: []
+  services: []
+  ignoreAbortSelf: 0
+  attackDamage: 10
+  targetKey: {fileID: -99075884671302797, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
 --- !u!114 &-3386893810073384220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -134,10 +134,10 @@ MonoBehaviour:
   arrangeable: 1
   decorators:
   - {fileID: 2165685326538901428}
-  - {fileID: 2405345365831439954}
   services: []
   children:
-  - {fileID: -7082131308984925933}
+  - {fileID: -34052378210753535}
+  - {fileID: -1272033008795704647}
 --- !u!114 &-1272033008795704647
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -159,6 +159,7 @@ MonoBehaviour:
   services: []
   children:
   - {fileID: -2748904188342465779}
+  - {fileID: -3518856241101200260}
 --- !u!114 &-648182016715159553
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254,7 +255,6 @@ MonoBehaviour:
   - {fileID: 8528312614270398380}
   - {fileID: -2699596930814016197}
   - {fileID: 2165685326538901428}
-  - {fileID: -7082131308984925933}
   - {fileID: -1272033008795704647}
   - {fileID: -4406945170375928241}
   - {fileID: -34052378210753535}
@@ -264,11 +264,11 @@ MonoBehaviour:
   - {fileID: -8749274962304373387}
   - {fileID: 8212772147328275686}
   - {fileID: -255287392764946589}
-  - {fileID: 2405345365831439954}
   - {fileID: 5883370705064415537}
   - {fileID: 8080848484427264374}
   - {fileID: -648182016715159553}
   - {fileID: 6359886823355616790}
+  - {fileID: -3518856241101200260}
   groups: []
   notes: []
   selectedNode: {fileID: 0}
@@ -301,27 +301,6 @@ MonoBehaviour:
       type: {class: TransformQuery, ns: RenownedGames.AITree, asm: AITree}
       data:
         comparer: 0
---- !u!114 &2405345365831439954
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eda7c2807015be244af640a6409a445b, type: 3}
-  m_Name: IsAliveDecorator
-  m_EditorClassIdentifier: Core::SteelSurge.Core.AI.Decorators.IsAliveDecorator
-  nodeName: Target is Alive
-  nodePosition: {x: 0, y: 0}
-  breakpoint: 0
-  arrangeable: 1
-  child: {fileID: 0}
-  notifyObserver: 1
-  observerAbort: 3
-  targetKey: {fileID: -99075884671302797, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
-  invert: 0
 --- !u!114 &4283574894465435902
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -363,7 +342,7 @@ MonoBehaviour:
   decorators: []
   services: []
   ignoreAbortSelf: 0
-  searchRadius: 15
+  searchRadius: 3.1
   targetKey: {fileID: -99075884671302797, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
 --- !u!114 &6359886823355616790
 MonoBehaviour:
@@ -403,7 +382,7 @@ MonoBehaviour:
   arrangeable: 1
   child: {fileID: 0}
   notifyObserver: 1
-  observerAbort: 3
+  observerAbort: 1
   targetKey: {fileID: -99075884671302797, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
   rangeKey: {fileID: 1098227017385275353, guid: 6ee8eba315e13ba438430b28bbc91ce8, type: 2}
   comparison: 2

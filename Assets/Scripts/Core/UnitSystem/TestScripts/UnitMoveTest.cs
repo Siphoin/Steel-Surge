@@ -23,6 +23,7 @@ namespace SteelSurge.Core.UnitSystem.TestScripts
                 Ray ray = _mainCamera.ScreenPointToRay(Input.mousePosition);
                 if (Physics.Raycast(ray, out RaycastHit hit))
                 {
+                    _unit.StateMachine.ClearTarget();
                     _unit.StateMachine.SetTargetPoint(hit.point);
                     Debug.Log($"Unit {name} moving to {hit.point}");
                 }
